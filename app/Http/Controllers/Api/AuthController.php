@@ -140,7 +140,122 @@ class AuthController extends Controller
 
     public function updateUser(Request $request)
     {
-        
+        $user = auth()->user();
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|unique:users,email',
+            'password' => 'required|string|confirmed',
+            'cpf' => 'required|unique:users,cpf',
+            'genero' => ['required', Rule::in(['m','f', 'o', 'n'])],
+            'admin' => 'boolean',
+            'address_name' => 'required|string|max:255',
+            'cep' => 'required|string|size:8',
+            'address' => 'required|string|max:255',
+            'district' => 'required|string|max:255',
+            'number' => 'required|string',
+            'complement' => 'string|max:255',
+            'cidade_id' => 'required|integer',
+            'estado_id' => 'required|integer',
+        ]);
+
+        $endereco = Endereco::find($user->endereco_id);
+        $endereco->name = $request->address_name;
+        $endereco->cep = $request->cep;
+        $endereco->address = $request->address;
+        $endereco->district = $request->district;
+        $endereco->number = $request->number;
+        $endereco->complement = $request->complement;
+        $endereco->cidade_id = $request->cidade_id;
+        $endereco->estado_id = $request->estado_id;
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->cpf = $request->cpf;
+        $user->genero = $request->genero;
+        $user->password = $request->password;
+        $user->endereco_id = $endereco->id;
+
+        $token = $user->createToken(env('APP_API'))->plainTextToken;
+
+        $response = [
+            'user' => $user,
+            'token' => $token
+        ];
+
+        return response($response, 201);
+    }
+
+    public function updateUserAdmin(Request $request)
+    {
+        $user = auth()->user();
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'cpf' => 'required|unique:users,cpf',
+            'genero' => ['required', Rule::in(['m','f', 'o', 'n'])],
+            'password' => 'required|string|confirmed',
+            'admin' => 'required|boolean',
+            'address_name' => 'required|string|max:255',
+            'cep' => 'required|string|size:8',
+            'address' => 'required|string|max:255',
+            'district' => 'required|string|max:255',
+            'number' => 'required|string',
+            'complement' => 'string|max:255',
+            'cidade_id' => 'required|integer',
+            'estado_id' => 'required|integer',
+            'corporate_name' => 'required|string|max:255',
+            'trading_name' => 'required|string|max:20',
+            'cnpj' => 'required|string|size:14',
+            'web_site' => 'string|max:255',
+            'phone' => 'required|string|max:11',
+            'cel_phone' => 'size:11',
+            'email_loja' => 'required|email|max:255',
+            'representante_legal' => 'required|string|max:255',
+            'representante_legal_email' => 'required|email|max:255',
+        ]);
+
+        $endereco = Endereco::find($user->endereco_id);
+        $endereco->name = $request->address_name;
+        $endereco->cep = $request->cep;
+        $endereco->address = $request->address;
+        $endereco->district = $request->district;
+        $endereco->number = $request->number;
+        $endereco->complement = $request->complement;
+        $endereco->cidade_id = $request->cidade_id;
+        $endereco->estado_id = $request->estado_id;
+        $endereco->save();
+
+        $loja = Loja::find($user->loja_id);
+        $loja->corporate_name = $request->corporate_name;
+        $loja->trading_name = $request->trading_name;
+        $loja->cnpj = $request->cnpj;
+        $loja->web_site = $request->web_site;
+        $loja->phone = $request->phone;
+        $loja->cel_phone = $request->cel_phone;
+        $loja->email = $request->email;
+        $loja->representante_legal = $request->representante_legal;
+        $loja->representante_legal_email = $request->representante_legal_email;
+        $loja->endereco_id = $endereco->id;
+        $loja->save();
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->cpf = $request->cpf;
+        $user->genero = $request->genero;
+        $user->password = $request->password;
+        $user->endereco_id = $endereco->id;
+        $user->loja_id = $loja->id;
+        $user->save();
+
+        $token = $user->createToken(env('APP_API'))->plainTextToken;
+
+        $response = [
+            'user' => $user,
+            'token' => $token
+        ];
+
+        return response($response, 201);
     }
 
     public function login(Request $request)
