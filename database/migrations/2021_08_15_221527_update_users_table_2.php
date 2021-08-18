@@ -14,7 +14,7 @@ class UpdateUsersTable2 extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table){
-            $table->enum('genero', ['m', 'f', 'o', 'n'])->after('email_verified_at');
+            $table->enum('gender', ['m', 'f', 'o', 'n'])->after('email_verified_at');
         });
     }
 
@@ -27,7 +27,7 @@ class UpdateUsersTable2 extends Migration
     {
         Schema::table('users', function($table)
         {
-            $table->dropColumn('genero');
+            $table->dropColumn('gender');
         });
     }
 }

@@ -38,7 +38,7 @@ class EstadosSeeder extends Seeder
         );
         Estado::create(
         [
-        'name' => 'RoRAIMA',
+        'name' => 'RORAIMA',
         'uf' => 'RR',
         'ibge' => '14',
         ],

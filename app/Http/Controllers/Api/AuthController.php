@@ -23,7 +23,7 @@ class AuthController extends Controller
             'email' => 'required|unique:users,email',
             'password' => 'required|string|confirmed',
             'cpf' => 'required|unique:users,cpf',
-            'genero' => ['required', Rule::in(['m','f', 'o', 'n'])],
+            'gender' => ['required', Rule::in(['m','f', 'o', 'n'])],
             'admin' => 'boolean',
             'address_name' => 'required|string|max:255',
             'cep' => 'required|string|size:8',
@@ -50,7 +50,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'cpf' => $request->cpf,
-            'genero' => $request->genero,
+            'gender' => $request->gender,
             'password' => Hash::make($request->password),
             'endereco_id' => $endereco->id
         ]);
@@ -71,7 +71,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'cpf' => 'required|unique:users,cpf',
-            'genero' => ['required', Rule::in(['m','f', 'o', 'n'])],
+            'gender' => ['required', Rule::in(['m','f', 'o', 'n'])],
             'password' => 'required|string|confirmed',
             'admin' => 'required|boolean',
             'address_name' => 'required|string|max:255',
@@ -121,7 +121,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'cpf' => $request->cpf,
-            'genero' => $request->genero,
+            'gender' => $request->gender,
             'password' => Hash::make($request->password),
             'loja_id' => $loja->id,
             'endereco_id' => $endereco->id,
@@ -146,7 +146,7 @@ class AuthController extends Controller
             'email' => 'required|unique:users,email',
             'password' => 'required|string|confirmed',
             'cpf' => 'required|unique:users,cpf',
-            'genero' => ['required', Rule::in(['m','f', 'o', 'n'])],
+            'gender' => ['required', Rule::in(['m','f', 'o', 'n'])],
             'admin' => 'boolean',
             'address_name' => 'required|string|max:255',
             'cep' => 'required|string|size:8',
@@ -171,7 +171,7 @@ class AuthController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->cpf = $request->cpf;
-        $user->genero = $request->genero;
+        $user->gender = $request->gender;
         $user->password = $request->password;
         $user->endereco_id = $endereco->id;
 
@@ -193,7 +193,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'cpf' => 'required|unique:users,cpf',
-            'genero' => ['required', Rule::in(['m','f', 'o', 'n'])],
+            'gender' => ['required', Rule::in(['m','f', 'o', 'n'])],
             'password' => 'required|string|confirmed',
             'admin' => 'required|boolean',
             'address_name' => 'required|string|max:255',
@@ -242,7 +242,7 @@ class AuthController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->cpf = $request->cpf;
-        $user->genero = $request->genero;
+        $user->gender = $request->gender;
         $user->password = $request->password;
         $user->endereco_id = $endereco->id;
         $user->loja_id = $loja->id;

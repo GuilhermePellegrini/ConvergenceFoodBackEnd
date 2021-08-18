@@ -93,14 +93,43 @@ class ProdutoController extends Controller
 
     public function addFoto($produto_id, Request $request)
     {
+        $request->validate([
+            'produto_id' => 'required',
+            'image' => 'required|image'
+        ]);
 
+        $path = $request->image->store('public/produtos');
+        $path = Storage::url($path);
+
+        $produto = Produto::find($produto_id);
+        $foto_id = $produto->fotos()->orderBy('order')->first();
+
+        $foto = Foto::create([
+            'path' => $path,
+            'order' => $foto_id + 1
+        ]);
+
+        ProdutoFoto::create([
+            'produto_id' => $produto->id,
+            'foto_id' => $foto->id
+        ]);
     }
 
     public function updateOrderFoto($produto_id, Request $request)
     {
+        $request->validate([
+            'foto_id' => 'required',
+            'order' => 'required',
+        ]);
 
+        $produtoFoto = ProdutoFoto::where('produto_id', $produto_id)->where('foto_id', $request->foto_id)->get();
+        
+        $foto = Foto::where('foto_id', $produtoFoto->foto_id)->first();
+        $foto->order = $request->order;
+        $foto->save();
     }
 
+    //method Delete
     public function delete($produto_id)
     {
         //buscando usuario autenticado
@@ -109,7 +138,9 @@ class ProdutoController extends Controller
         //verificando se loja do usuario é a mesma do produto
         $produtoFotos = ProdutoFoto::where('id', $produto_id)->where('loja_id', $user->loja_id)->get();
 
+        //verificando se fotos do produto existem
         if(!$produtoFotos){
+            //retornando mensagem
             return response([
                 'message' => 'Produto not found'
             ], 404);
@@ -132,6 +163,7 @@ class ProdutoController extends Controller
         ], 200);
     }
 
+    //method deleteFoto
     public function deleteFoto($produto_id, $foto_id)
     {
         //buscando usuario autenticado
