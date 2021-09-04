@@ -51,4 +51,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function lojas()
+    {
+        return $this->belongsToMany(Loja::class, 'loja_users', 'user_id');
+    }
 }

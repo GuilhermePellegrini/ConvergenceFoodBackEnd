@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ProdutoController;
 use App\Http\Controllers\AuthController;
 use App\Models\Cidade;
 use App\Models\Estado;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -45,15 +46,21 @@ Route::get('/produto/{produto_id}', [ProdutoController::class, 'getProduto']);
 Route::group(['middleware' => 'auth:sanctum'], function (){
 
     Route::get('/user', function (Request $request) {
-        return $request->user();
+        $user = User::find($request->user()->id);
+        return [
+            'user' => $user, 
+            'lojas' => $user->lojas()->get()
+        ];
     });
 
     Route::post('/auth/logout', [ApiAuthController::class, 'logout']);
     Route::post('/auth/changePassword', [ApiAuthController::class, 'changePassword']);
-
+    Route::post('/auth/updateUser', [ApiAuthController::class, 'updateUser']);
+    
     Route::group(['middleware' => 'sanctum.abilities:admin'], function (){
         Route::post('/produto', [ProdutoController::class, 'create']);
         Route::delete('/produto/{produto_id}', [ProdutoController::class, 'delete']);
         Route::put('/produto/{produto_id}', [ProdutoController::class, 'update']);
+        Route::post('/auth/updateLoja', [ApiAuthController::class, 'updateLoja']);
     });
 });

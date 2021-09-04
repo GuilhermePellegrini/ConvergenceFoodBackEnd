@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Endereco;
 use App\Models\Loja;
+use App\Models\LojaUser;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
@@ -128,6 +129,11 @@ class AuthController extends Controller
             'admin' => $request->admin,
         ]);
 
+        $lojaUser = LojaUser::create([
+            'user_id' => $user->id,
+            'loja_id' => $loja->id
+        ]);
+
         $token = $user->createToken(env('APP_API'), ['admin'])->plainTextToken;
 
         $response = [
@@ -147,7 +153,7 @@ class AuthController extends Controller
             'password' => 'required|string|confirmed',
             'cpf' => 'required|unique:users,cpf',
             'gender' => ['required', Rule::in(['m','f', 'o', 'n'])],
-            'admin' => 'boolean',
+            'admin' => 'boolean|required',
             'address_name' => 'required|string|max:255',
             'cep' => 'required|string|size:8',
             'address' => 'required|string|max:255',
@@ -173,6 +179,7 @@ class AuthController extends Controller
         $user->cpf = $request->cpf;
         $user->gender = $request->gender;
         $user->password = $request->password;
+        $user->admin = $request->admin;
         $user->endereco_id = $endereco->id;
 
         $token = $user->createToken(env('APP_API'))->plainTextToken;
@@ -185,17 +192,11 @@ class AuthController extends Controller
         return response($response, 201);
     }
 
-    public function updateUserAdmin(Request $request)
+    public function updateLoja(Request $request)
     {
         $user = auth()->user();
 
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'cpf' => 'required|unique:users,cpf',
-            'gender' => ['required', Rule::in(['m','f', 'o', 'n'])],
-            'password' => 'required|string|confirmed',
-            'admin' => 'required|boolean',
             'address_name' => 'required|string|max:255',
             'cep' => 'required|string|size:8',
             'address' => 'required|string|max:255',
@@ -239,20 +240,8 @@ class AuthController extends Controller
         $loja->endereco_id = $endereco->id;
         $loja->save();
 
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->cpf = $request->cpf;
-        $user->gender = $request->gender;
-        $user->password = $request->password;
-        $user->endereco_id = $endereco->id;
-        $user->loja_id = $loja->id;
-        $user->save();
-
-        $token = $user->createToken(env('APP_API'))->plainTextToken;
-
         $response = [
-            'user' => $user,
-            'token' => $token
+            'message' => 'Loja atualizada com sucesso!'
         ];
 
         return response($response, 201);
