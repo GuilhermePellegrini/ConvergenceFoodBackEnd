@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Estoque;
 use App\Models\Foto;
 use App\Models\Loja;
+use App\Models\MovimentoEstoques;
 use App\Models\Produto;
 use App\Models\ProdutoFoto;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -20,6 +23,7 @@ class ProdutoController extends Controller
             'description' => 'required|string|max:255',
             'loja_id' => 'required',
             'categoria_id' => 'required',
+            'quantidade' => 'required|numeric|between:1,9999999999',
             'images' => 'required',
             'images.*' => 'image',
         ]);
@@ -30,27 +34,39 @@ class ProdutoController extends Controller
             'description' => $request->description,
             'loja_id' => $request->loja_id,
         ]);
-
+        
         if($request->hasfile('images')){
             $i = 1;
             foreach($request->images as $image){
-                $path = $image->store('public/produtos');
+                $path = $image->storePublicly('produtos');
                 $path = Storage::url($path);
-
                 $foto = Foto::create([
                     'path' => $path,
                     'order' => $i
                 ]);
-
+                
                 ProdutoFoto::create([
                     'produto_id' => $produto->id,
                     'foto_id' => $foto->id
                 ]);
-
+                
                 $i++;
             }
         }
 
+        $estoque = Estoque::create([
+            'produto_id' => $produto->id,
+            'loja_id' => $request->loja_id,
+            'quantidade' => $request->quantidade,
+        ]);
+
+        MovimentoEstoques::create([
+            'estoque_id' => $estoque->id,
+            'produto_id' => $produto->id,
+            'entrada' => $request->quantidade,
+            'saida' => 0
+        ]);
+        
         $fotos = $produto->fotos()->get();
 
         return response([
@@ -59,7 +75,7 @@ class ProdutoController extends Controller
         ], 201);
     }
 
-    public function update(Request $request, $produto_id)
+    public function updateProduto(Request $request, $produto_id)
     {
         $request->validate([
             'name' => 'required|string|max:60',
@@ -69,10 +85,12 @@ class ProdutoController extends Controller
             'categoria_id' => 'required',
         ]);
 
-        $user = auth()->user();
-        $produto = Produto::where('id', $produto_id)->where('loja_id', $user->loja_id)->first();
+        $user = User::find(auth()->user()->id);
+        $lojas = $user->lojas()->get();
 
-        if(!$produto){
+        $produto = Produto::where('id', $produto_id)->whereIn('loja_id', $lojas)->first();
+
+        if(empty($produto)){
             return response([
                 'message' => 'Produto not found'
             ], 404);
@@ -83,11 +101,16 @@ class ProdutoController extends Controller
         $produto->description = $request->description;
         $produto->loja_id = $request->loja_id;
         $produto->save();
+
+        $estoque = Estoque::where('produto_id', $produto_id)->first();
+
+        $fotos = $produto->fotos()->get();
         
         return response([
             'message' => 'Produto updated successfully',
             'produto' => $produto,
-            'fotos' => $produto->fotos()->get()
+            'estoque' => $estoque,
+            'fotos' => $fotos
         ], 200);
     }
 
@@ -133,18 +156,22 @@ class ProdutoController extends Controller
     public function delete($produto_id)
     {
         //buscando usuario autenticado
-        $user = auth()->user();
-
-        //verificando se loja do usuario é a mesma do produto
-        $produtoFotos = ProdutoFoto::where('id', $produto_id)->where('loja_id', $user->loja_id)->get();
+        $user = User::find(auth()->user()->id);
+        
+        $lojas = $user->lojas()->get();
+        //buscando produto
+        $produto = Produto::where('id', $produto_id)->whereIn('loja_id', $lojas)->get();
 
         //verificando se fotos do produto existem
-        if(!$produtoFotos){
+        if(empty($produto)){
             //retornando mensagem
             return response([
                 'message' => 'Produto not found'
             ], 404);
         }
+
+        //buscando fotos produto
+        $produtoFotos = ProdutoFoto::where('produto_id', $produto_id)->get();
 
         //rodando todas as fotos dos produtos
         foreach ($produtoFotos as $produtoFoto){
@@ -154,8 +181,13 @@ class ProdutoController extends Controller
             $produtoFoto->delete();
         }
 
-        //buscando e deletando produto
-        $produto = Produto::find($produto_id);
+        //deletando estoque e movimentações do estoque
+        $estoque = $produto->estoque();
+        $movimentacao = $estoque->movimentacao()->get();
+        $movimentacao->delete();
+        $estoque->delete();
+
+        //deletando produto
         $produto->delete();
         
         return response([
@@ -167,19 +199,20 @@ class ProdutoController extends Controller
     public function deleteFoto($produto_id, $foto_id)
     {
         //buscando usuario autenticado
-        $user = auth()->user();
+        $user = User::find(auth()->user()->id);
 
         //verificando se a foto pertence ao produto enviado
         $produtoFoto = ProdutoFoto::where('produto_id', $produto_id)->where('foto_id', $foto_id)->first();
-        if(!$produtoFoto){
+        if(empty($produtoFoto)){
             return response([
                 'message' => 'Foto Produto not found'
             ], 404);
         }
 
+        $lojas = $user->lojas()->get();
         //verificando se loja do usuario é a mesma do produto
-        $produto = Produto::where('id', $produto_id)->where('loja_id', $user->loja_id)->first();
-        if(!$produto){
+        $produto = Produto::where('id', $produto_id)->whereIn('loja_id', $lojas)->first();
+        if(empty($produto)){
             return response([
                 'message' => 'Foto Produto not found'
             ], 404);
@@ -200,7 +233,7 @@ class ProdutoController extends Controller
         $produto = Produto::find($produto_id);
 
         //verificando se produto existe
-        if(!$produto){
+        if(empty($produto)){
             return response([
                 'message' => 'Foto Produto not found'
             ], 404);
@@ -209,9 +242,13 @@ class ProdutoController extends Controller
         //buscando fotos do produto
         $fotos = $produto->fotos()->get();
 
+        //buscando estoque do produto
+        $estoque = $produto->estoque()->get();
+
         return response([
             'produto' => $produto,
-            'fotos' => $fotos
+            'estoque' => $estoque,
+            'fotos' => $fotos,
         ], 200);
     }
 
@@ -277,6 +314,8 @@ class ProdutoController extends Controller
             $produto_response[$i] = $produto;
             //buscando fotos do produto
             $fotos = $produto->fotos()->get();
+
+            $produto_response[$i]['estoque'] = $produto->estoque()->get();
             //iniciando contado de fotos f e rodando fotos do produto
             $f = 0;
             foreach ($fotos as $foto){
@@ -287,6 +326,7 @@ class ProdutoController extends Controller
             }
             //somando contador i
             $i++;
+
         }
         
         return response([

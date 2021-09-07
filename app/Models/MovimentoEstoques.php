@@ -12,15 +12,13 @@ class MovimentoEstoques extends Model
 
     protected $fillable = [
         'pedido_id',
-        'entrada_id',
         'estoque_id',
         'produto_id',
         'entrada',
         'saida'
     ];
-
+    
     protected $hidden = [
-        'created_at',
         'updated_at',
         'deleted_at',
     ];

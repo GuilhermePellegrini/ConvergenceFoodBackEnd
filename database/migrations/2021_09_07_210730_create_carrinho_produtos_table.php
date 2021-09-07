@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateMovimentoEstoquesTable extends Migration
+class CreateCarrinhoProdutosTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +13,15 @@ class CreateMovimentoEstoquesTable extends Migration
      */
     public function up()
     {
-        Schema::create('movimento_estoques', function (Blueprint $table) {
+        Schema::create('carrinho_produtos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('pedido_id')->nullable()->default(null);
-            $table->foreignId('estoque_id');
+            $table->foreignId('carrinho_id');
             $table->foreignId('produto_id');
-            $table->integer('entrada')->nullable()->default(null);
-            $table->integer('saida')->nullable()->default(null);
+            $table->string('note', 255);
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('estoque_id')->references('id')->on('estoques')->onDelete('cascade');
+            $table->foreign('carrinho_id')->references('id')->on('carrinhos')->onDelete('cascade');
             $table->foreign('produto_id')->references('id')->on('produtos')->onDelete('cascade');
         });
     }
@@ -35,6 +33,6 @@ class CreateMovimentoEstoquesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('movimento_estoques');
+        Schema::dropIfExists('carrinho_produtos');
     }
 }

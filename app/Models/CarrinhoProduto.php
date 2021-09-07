@@ -6,15 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Produto extends Model
+class CarrinhoProduto extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'name',
-        'price',
-        'description',
-        'loja_id'
+        'carrinho_id',
+        'produto_id',
+        'note',
     ];
 
     protected $hidden = [
@@ -23,13 +22,4 @@ class Produto extends Model
         'deleted_at',
     ];
 
-    public function fotos()
-    {
-        return $this->belongsToMany(Foto::class, 'produto_fotos', 'produto_id');
-    }
-
-    public function estoque()
-    {
-        return $this->hasOne(Estoque::class);
-    }
 }

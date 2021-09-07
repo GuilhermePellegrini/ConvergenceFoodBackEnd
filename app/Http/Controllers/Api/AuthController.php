@@ -11,12 +11,21 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
+
+    public function getUser()
+    {
+        $user = User::find($user = auth()->user()->id);
+        return [
+            'user' => $user,
+            'lojas' => $user->lojas()->get()
+        ];
+    }
+
     public function register(Request $request)
     {
         $request->validate([
@@ -124,12 +133,11 @@ class AuthController extends Controller
             'cpf' => $request->cpf,
             'gender' => $request->gender,
             'password' => Hash::make($request->password),
-            'loja_id' => $loja->id,
             'endereco_id' => $endereco->id,
             'admin' => $request->admin,
         ]);
 
-        $lojaUser = LojaUser::create([
+        LojaUser::create([
             'user_id' => $user->id,
             'loja_id' => $loja->id
         ]);
@@ -192,7 +200,7 @@ class AuthController extends Controller
         return response($response, 201);
     }
 
-    public function updateLoja(Request $request)
+    public function createLoja(Request $request)
     {
         $user = auth()->user();
 
@@ -216,7 +224,76 @@ class AuthController extends Controller
             'representante_legal_email' => 'required|email|max:255',
         ]);
 
-        $endereco = Endereco::find($user->endereco_id);
+        $endereco =  Endereco::create([
+            'name' => $request->address_name,
+            'cep' => $request->cep,
+            'address' => $request->address,
+            'district' => $request->district,
+            'number' => $request->number,
+            'complement' => $request->complement,
+            'cidade_id' => $request->cidade_id,
+            'estado_id' => $request->estado_id,
+        ]);
+
+        $loja = Loja::create([
+            'corporate_name' => $request->corporate_name,
+            'trading_name' => $request->trading_name,
+            'cnpj' => $request->cnpj,
+            'web_site' => $request->web_site,
+            'phone' => $request->phone,
+            'cel_phone' => $request->cel_phone,
+            'email' => $request->email,
+            'representante_legal' => $request->representante_legal,
+            'representante_legal_email' => $request->representante_legal_email,
+            'endereco_id' => $endereco->id,
+        ]);
+
+        LojaUser::create([
+            'user_id' => $user->id,
+            'loja_id' => $loja->id
+        ]);
+
+        $response = [
+            'message' => 'Loja criada com sucesso!'
+        ];
+
+        return response($response, 201);
+    }
+
+    public function updateLoja($loja_id ,Request $request)
+    {
+        $user = auth()->user();
+        $loja = LojaUser::where('loja_id', $loja_id)->where('user_id', $user->id)->first();
+        $loja = Loja::find($loja_id);
+
+        if(empty($loja)){
+            //retornando mensagem
+            return response([
+                'message' => 'Loja not found'
+            ], 404);
+        }
+
+        $request->validate([
+            'address_name' => 'required|string|max:255',
+            'cep' => 'required|string|size:8',
+            'address' => 'required|string|max:255',
+            'district' => 'required|string|max:255',
+            'number' => 'required|string',
+            'complement' => 'string|max:255',
+            'cidade_id' => 'required|integer',
+            'estado_id' => 'required|integer',
+            'corporate_name' => 'required|string|max:255',
+            'trading_name' => 'required|string|max:20',
+            'cnpj' => 'required|string|size:14',
+            'web_site' => 'string|max:255',
+            'phone' => 'required|string|max:11',
+            'cel_phone' => 'size:11',
+            'email_loja' => 'required|email|max:255',
+            'representante_legal' => 'required|string|max:255',
+            'representante_legal_email' => 'required|email|max:255',
+        ]);
+
+        $endereco = Endereco::find($loja->endereco_id);
         $endereco->name = $request->address_name;
         $endereco->cep = $request->cep;
         $endereco->address = $request->address;
@@ -227,7 +304,6 @@ class AuthController extends Controller
         $endereco->estado_id = $request->estado_id;
         $endereco->save();
 
-        $loja = Loja::find($user->loja_id);
         $loja->corporate_name = $request->corporate_name;
         $loja->trading_name = $request->trading_name;
         $loja->cnpj = $request->cnpj;
@@ -245,6 +321,29 @@ class AuthController extends Controller
         ];
 
         return response($response, 201);
+    }
+
+    public function deleteLoja($idLoja)
+    {
+        $user = auth()->user();
+        $loja = Loja::find($idLoja);
+        $lojaUser = LojaUser::where('loja_id', $loja->id)->where('user_id', $user->id)->first();
+        if(empty($lojaUser)){
+            //retornando mensagem
+            return response([
+                'message' => 'Loja not found'
+            ], 404);
+        }
+
+        $lojaUser->delete();
+        $loja->delete();
+
+        $response = [
+            'message' => 'Loja deletada com sucesso!'
+        ];
+
+        return response($response, 200);
+
     }
 
     public function login(Request $request)

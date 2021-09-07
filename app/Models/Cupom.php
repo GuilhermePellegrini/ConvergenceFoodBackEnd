@@ -6,15 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Produto extends Model
+class Cupom extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = 'cupons';
+
     protected $fillable = [
-        'name',
-        'price',
-        'description',
-        'loja_id'
+        'token',
+        'discount',
+        'min_price'
     ];
 
     protected $hidden = [
@@ -22,14 +23,4 @@ class Produto extends Model
         'updated_at',
         'deleted_at',
     ];
-
-    public function fotos()
-    {
-        return $this->belongsToMany(Foto::class, 'produto_fotos', 'produto_id');
-    }
-
-    public function estoque()
-    {
-        return $this->hasOne(Estoque::class);
-    }
 }

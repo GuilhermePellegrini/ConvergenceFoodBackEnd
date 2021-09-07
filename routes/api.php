@@ -2,10 +2,8 @@
 
 use App\Http\Controllers\Api\AuthController as ApiAuthController;
 use App\Http\Controllers\Api\CepController;
+use App\Http\Controllers\Api\EstoqueController;
 use App\Http\Controllers\Api\ProdutoController;
-use App\Http\Controllers\AuthController;
-use App\Models\Cidade;
-use App\Models\Estado;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -45,22 +43,31 @@ Route::get('/produto/{produto_id}', [ProdutoController::class, 'getProduto']);
 
 Route::group(['middleware' => 'auth:sanctum'], function (){
 
-    Route::get('/user', function (Request $request) {
-        $user = User::find($request->user()->id);
-        return [
-            'user' => $user, 
-            'lojas' => $user->lojas()->get()
-        ];
-    });
-
+    //Auth user
+    Route::get('/user',  [ApiAuthController::class, 'getUser']);
     Route::post('/auth/logout', [ApiAuthController::class, 'logout']);
     Route::post('/auth/changePassword', [ApiAuthController::class, 'changePassword']);
     Route::post('/auth/updateUser', [ApiAuthController::class, 'updateUser']);
     
+    //Administrador Lojas
     Route::group(['middleware' => 'sanctum.abilities:admin'], function (){
+
+        //Auth Loja
+        Route::put('/loja/{loja_id}', [ApiAuthController::class, 'updateLoja']);
+        Route::delete('/loja/{loja_id}', [ApiAuthController::class, 'deleteLoja']);
+        Route::post('/loja/create', [ApiAuthController::class, 'createLoja']);
+
+        //Produto
         Route::post('/produto', [ProdutoController::class, 'create']);
         Route::delete('/produto/{produto_id}', [ProdutoController::class, 'delete']);
-        Route::put('/produto/{produto_id}', [ProdutoController::class, 'update']);
-        Route::post('/auth/updateLoja', [ApiAuthController::class, 'updateLoja']);
+        Route::put('/produto/{produto_id}', [ProdutoController::class, 'updateProduto']);
+        Route::put('/produto/foto/{produto_id}', [ProdutoController::class, 'addFoto']);
+        Route::post('/produto/foto/{produto_id}', [ProdutoController::class, 'updateOrderFoto']);
+        Route::delete('/produto/foto/{produto_id}/{foto_id}', [ProdutoController::class, 'deleteFoto']);
+        
+        //Estoque
+        Route::get('/estoque/{produto_id}', [EstoqueController::class, 'getEstoque']);
+        Route::put('/estoque/{produto_id}', [EstoqueController::class, 'changeEstoque']);
     });
+
 });

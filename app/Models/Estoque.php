@@ -21,4 +21,10 @@ class Estoque extends Model
         'updated_at',
         'deleted_at',
     ];
+
+    
+    public function movimento()
+    {
+        return $this->hasMany(MovimentoEstoques::class);
+    }
 }
