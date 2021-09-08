@@ -38,11 +38,12 @@ class ProdutoController extends Controller
         if($request->hasfile('images')){
             $i = 1;
             foreach($request->images as $image){
-                $path = $image->storePublicly('produtos');
-                $path = Storage::url($path);
+                $aws = $image->store('produto', 's3');
+                $path = Storage::url($aws);
                 $foto = Foto::create([
                     'path' => $path,
-                    'order' => $i
+                    'order' => $i,
+                    'aws' => $aws
                 ]);
                 
                 ProdutoFoto::create([
@@ -121,15 +122,16 @@ class ProdutoController extends Controller
             'image' => 'required|image'
         ]);
 
-        $path = $request->image->store('public/produtos');
-        $path = Storage::url($path);
+        $aws = $this->request->image->store('produto', 's3');
+        $path = Storage::url($aws);
 
         $produto = Produto::find($produto_id);
         $foto_id = $produto->fotos()->orderBy('order')->first();
 
         $foto = Foto::create([
             'path' => $path,
-            'order' => $foto_id + 1
+            'order' => $foto_id + 1,
+            'aws' => $aws
         ]);
 
         ProdutoFoto::create([
@@ -160,7 +162,7 @@ class ProdutoController extends Controller
         
         $lojas = $user->lojas()->get();
         //buscando produto
-        $produto = Produto::where('id', $produto_id)->whereIn('loja_id', $lojas)->get();
+        $produto = Produto::where('id', $produto_id)->whereIn('loja_id', $lojas)->first();
 
         //verificando se fotos do produto existem
         if(empty($produto)){
@@ -175,16 +177,19 @@ class ProdutoController extends Controller
 
         //rodando todas as fotos dos produtos
         foreach ($produtoFotos as $produtoFoto){
-            $fotos = Foto::find($produtoFoto->id);
+            $foto = Foto::find($produtoFoto->id);
+            Storage::disk('s3')->delete($foto->aws);
             //deletando foto do produto e pivot
-            $fotos->delete();
+            $foto->delete();
             $produtoFoto->delete();
         }
 
         //deletando estoque e movimentações do estoque
-        $estoque = $produto->estoque();
-        $movimentacao = $estoque->movimentacao()->get();
-        $movimentacao->delete();
+        $estoque = $produto->estoque()->first();
+        $movimentacao = $estoque->movimento()->get();
+        foreach($movimentacao as $movimento){
+            $movimento->delete();
+        }
         $estoque->delete();
 
         //deletando produto
@@ -220,7 +225,7 @@ class ProdutoController extends Controller
 
         //buscando foto
         $foto = Foto::find($produtoFoto->foto_id);
-        
+        Storage::disk('s3')->delete($foto->aws);
         //deletando foto e pivot produtoFoto
         $foto->delete();
         $produtoFoto->delete();

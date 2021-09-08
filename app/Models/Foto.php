@@ -12,7 +12,8 @@ class Foto extends Model
 
     protected $fillable = [
         'path',
-        'order'
+        'order',
+        'aws'
     ];
 
     protected $hidden = [

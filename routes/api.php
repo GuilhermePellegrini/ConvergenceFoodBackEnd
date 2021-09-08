@@ -4,8 +4,6 @@ use App\Http\Controllers\Api\AuthController as ApiAuthController;
 use App\Http\Controllers\Api\CepController;
 use App\Http\Controllers\Api\EstoqueController;
 use App\Http\Controllers\Api\ProdutoController;
-use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -68,6 +66,8 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
         //Estoque
         Route::get('/estoque/{produto_id}', [EstoqueController::class, 'getEstoque']);
         Route::put('/estoque/{produto_id}', [EstoqueController::class, 'changeEstoque']);
+
+        //Carrinho
     });
 
 });

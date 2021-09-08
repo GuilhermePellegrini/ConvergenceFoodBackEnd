@@ -14,6 +14,7 @@ class Carrinho extends Model
         'loja_id',
         'user_id',
         'endereco_id',
+        'cupom_id',
         'price',
         'discount',
         'note'
@@ -28,5 +29,10 @@ class Carrinho extends Model
     public function produtos()
     {
         return $this->belongsToMany(Produto::class, 'carrinho_produtos', 'produto_id');
+    }
+
+    public function cupom()
+    {
+        return $this->hasOne(Cupom::class, null, 'cupom_id');
     }
 }
