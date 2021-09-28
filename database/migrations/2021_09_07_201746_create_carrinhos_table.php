@@ -21,7 +21,7 @@ class CreateCarrinhosTable extends Migration
             $table->foreignId('cupom_id')->nullable()->default(null);
             $table->float('price', 10, 2);
             $table->float('discount', 10, 2)->nullable()->default(null);
-            $table->string('note', 255);
+            $table->string('note', 255)->nullable()->default(null);
             $table->timestamps();
             $table->softDeletes();
 

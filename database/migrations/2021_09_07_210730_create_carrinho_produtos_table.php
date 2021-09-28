@@ -17,7 +17,8 @@ class CreateCarrinhoProdutosTable extends Migration
             $table->id();
             $table->foreignId('carrinho_id');
             $table->foreignId('produto_id');
-            $table->string('note', 255);
+            $table->integer('amount');
+            $table->string('note', 255)->nullable()->default(null);
             $table->timestamps();
             $table->softDeletes();
 

@@ -25,7 +25,7 @@ class ProdutoController extends Controller
             'categoria_id' => 'required',
             'quantidade' => 'required|numeric|between:1,9999999999',
             'images' => 'required',
-            'images.*' => 'image',
+            'images.*' => 'required|image',
         ]);
 
         $produto = Produto::create([
@@ -118,26 +118,48 @@ class ProdutoController extends Controller
     public function addFoto($produto_id, Request $request)
     {
         $request->validate([
-            'produto_id' => 'required',
-            'image' => 'required|image'
+            'image' => 'required|image',
         ]);
 
-        $aws = $this->request->image->store('produto', 's3');
-        $path = Storage::url($aws);
-
+        $image = $request->file('image');
         $produto = Produto::find($produto_id);
-        $foto_id = $produto->fotos()->orderBy('order')->first();
+        if(empty($produto)){
+            return response([
+                'message' => 'Produto not found'
+            ], 404);
+        }
 
-        $foto = Foto::create([
-            'path' => $path,
-            'order' => $foto_id + 1,
-            'aws' => $aws
-        ]);
+        $lastFoto = $produto->fotos()->orderBy('order', 'desc')->first();
+        $i = $lastFoto->order + 1;
+        if($request->hasfile('image')){
+            $aws = $image->store('produto', 's3');
+            $path = Storage::url($aws);
 
-        ProdutoFoto::create([
-            'produto_id' => $produto->id,
-            'foto_id' => $foto->id
-        ]);
+            $foto = Foto::create([
+                'path' => $path,
+                'order' => $i,
+                'aws' => $aws
+            ]);
+            
+            ProdutoFoto::create([
+                'produto_id' => $produto->id,
+                'foto_id' => $foto->id
+            ]);
+            
+            $i++;
+        }
+        
+        $estoque = Estoque::where('produto_id', $produto_id)->first();
+
+        $fotos = $produto->fotos()->get();
+
+        return response([
+            'message' => 'Produto updated successfully',
+            'produto' => $produto,
+            'estoque' => $estoque,
+            'fotos' => $fotos
+        ], 200);
+
     }
 
     public function updateOrderFoto($produto_id, Request $request)
@@ -187,8 +209,10 @@ class ProdutoController extends Controller
         //deletando estoque e movimentações do estoque
         $estoque = $produto->estoque()->first();
         $movimentacao = $estoque->movimento()->get();
-        foreach($movimentacao as $movimento){
-            $movimento->delete();
+        if($movimentacao != null){
+            foreach($movimentacao as $movimento){
+                $movimento->delete();
+            }
         }
         $estoque->delete();
 

@@ -46,6 +46,14 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
     Route::post('/auth/logout', [ApiAuthController::class, 'logout']);
     Route::post('/auth/changePassword', [ApiAuthController::class, 'changePassword']);
     Route::post('/auth/updateUser', [ApiAuthController::class, 'updateUser']);
+
+    //Carrinho
+    Route::post('/carrinho', [CarrinhoController::class, 'createCarrinho']);
+    Route::get('/carrinho', [CarrinhoController::class, 'getCarrinho']);
+    Route::post('/carrinho/{carrinho_id}', [CarrinhoController::class, 'insertProduto']);
+    Route::delete('/carrinho/{carrinho_id}/{produto_id}', [CarrinhoController::class, 'removeProduto']);
+    Route::put('/carrinho/{carrinho_id}/{produto_id}', [CarrinhoController::class, 'updateProduto']);
+    Route::delete('/carrinho/{carrinho_id}', [CarrinhoController::class, 'cleanCarrinho']);
     
     //Administrador Lojas
     Route::group(['middleware' => 'sanctum.abilities:admin'], function (){
@@ -59,15 +67,14 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
         Route::post('/produto', [ProdutoController::class, 'create']);
         Route::delete('/produto/{produto_id}', [ProdutoController::class, 'delete']);
         Route::put('/produto/{produto_id}', [ProdutoController::class, 'updateProduto']);
-        Route::put('/produto/foto/{produto_id}', [ProdutoController::class, 'addFoto']);
-        Route::post('/produto/foto/{produto_id}', [ProdutoController::class, 'updateOrderFoto']);
+        Route::post('/produto/foto/{produto_id}', [ProdutoController::class, 'addFoto']);
+        Route::put('/produto/foto/{produto_id}', [ProdutoController::class, 'updateOrderFoto']);
         Route::delete('/produto/foto/{produto_id}/{foto_id}', [ProdutoController::class, 'deleteFoto']);
         
         //Estoque
         Route::get('/estoque/{produto_id}', [EstoqueController::class, 'getEstoque']);
         Route::put('/estoque/{produto_id}', [EstoqueController::class, 'changeEstoque']);
 
-        //Carrinho
     });
 
 });
