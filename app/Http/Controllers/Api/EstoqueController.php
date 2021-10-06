@@ -16,7 +16,7 @@ class EstoqueController extends Controller
         $estoque = Estoque::where('produto_id', $produto_id)->first();
         if(empty($estoque)){
             return response([
-                'message' => 'Estoque not found'
+                'message' => 'Estoque não encontrado'
             ], 404);
         }
         $movimento = $estoque->movimento()->get();
@@ -42,7 +42,7 @@ class EstoqueController extends Controller
         if(empty($produto)){
             //retornando mensagem
             return response([
-                'message' => 'Produto not found'
+                'message' => 'Produto não encontrado'
             ], 404);
         }
 

@@ -94,7 +94,7 @@ class AuthController extends Controller
             'estado_id' => 'required|integer',
             'corporate_name' => 'required|string|max:255',
             'trading_name' => 'required|string|max:20',
-            'cnpj' => 'required|string|size:14',
+            'cnpj' => 'required|string|size:14|unique:lojas,cnpj',
             'web_site' => 'string|max:255',
             'phone' => 'required|string|max:11',
             'cel_phone' => 'size:11',
@@ -215,7 +215,7 @@ class AuthController extends Controller
             'estado_id' => 'required|integer',
             'corporate_name' => 'required|string|max:255',
             'trading_name' => 'required|string|max:20',
-            'cnpj' => 'required|string|size:14',
+            'cnpj' => 'required|string|size:14|unique:lojas,cnpj',
             'web_site' => 'string|max:255',
             'phone' => 'required|string|max:11',
             'cel_phone' => 'size:11',
@@ -269,7 +269,7 @@ class AuthController extends Controller
         if(empty($loja)){
             //retornando mensagem
             return response([
-                'message' => 'Loja not found'
+                'message' => 'Loja não encontrado'
             ], 404);
         }
 
@@ -284,7 +284,6 @@ class AuthController extends Controller
             'estado_id' => 'required|integer',
             'corporate_name' => 'required|string|max:255',
             'trading_name' => 'required|string|max:20',
-            'cnpj' => 'required|string|size:14',
             'web_site' => 'string|max:255',
             'phone' => 'required|string|max:11',
             'cel_phone' => 'size:11',
@@ -331,7 +330,7 @@ class AuthController extends Controller
         if(empty($lojaUser)){
             //retornando mensagem
             return response([
-                'message' => 'Loja not found'
+                'message' => 'Loja não encontrado'
             ], 404);
         }
 

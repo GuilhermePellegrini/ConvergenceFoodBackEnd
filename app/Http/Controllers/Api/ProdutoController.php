@@ -93,7 +93,7 @@ class ProdutoController extends Controller
 
         if(empty($produto)){
             return response([
-                'message' => 'Produto not found'
+                'message' => 'Produto não encontrado'
             ], 404);
         }
 
@@ -125,7 +125,7 @@ class ProdutoController extends Controller
         $produto = Produto::find($produto_id);
         if(empty($produto)){
             return response([
-                'message' => 'Produto not found'
+                'message' => 'Produto não encontrado'
             ], 404);
         }
 
@@ -190,7 +190,7 @@ class ProdutoController extends Controller
         if(empty($produto)){
             //retornando mensagem
             return response([
-                'message' => 'Produto not found'
+                'message' => 'Produto não encontrado'
             ], 404);
         }
 
@@ -234,7 +234,7 @@ class ProdutoController extends Controller
         $produtoFoto = ProdutoFoto::where('produto_id', $produto_id)->where('foto_id', $foto_id)->first();
         if(empty($produtoFoto)){
             return response([
-                'message' => 'Foto Produto not found'
+                'message' => 'Foto Produto não encontrado'
             ], 404);
         }
 
@@ -243,7 +243,7 @@ class ProdutoController extends Controller
         $produto = Produto::where('id', $produto_id)->whereIn('loja_id', $lojas)->first();
         if(empty($produto)){
             return response([
-                'message' => 'Foto Produto not found'
+                'message' => 'Foto Produto não encontrado'
             ], 404);
         }
 
@@ -264,7 +264,7 @@ class ProdutoController extends Controller
         //verificando se produto existe
         if(empty($produto)){
             return response([
-                'message' => 'Foto Produto not found'
+                'message' => 'Foto Produto não encontrado'
             ], 404);
         }
 
@@ -289,7 +289,7 @@ class ProdutoController extends Controller
         //verificando se loja existe
         if(!$loja){
             return response([
-                'message' => 'Loja not found'
+                'message' => 'Loja não encontrado'
             ], 404);
         }
 
