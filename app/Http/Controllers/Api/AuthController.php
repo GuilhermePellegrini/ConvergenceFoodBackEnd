@@ -69,6 +69,7 @@ class AuthController extends Controller
 
         $response = [
             'user' => $user,
+            'lojas' => $user->lojas()->get(),
             'token' => $token
         ];
 
@@ -146,6 +147,7 @@ class AuthController extends Controller
 
         $response = [
             'user' => $user,
+            'lojas' => $user->lojas()->get(),
             'token' => $token
         ];
 
@@ -194,6 +196,7 @@ class AuthController extends Controller
 
         $response = [
             'user' => $user,
+            'lojas' => $user->lojas()->get(),
             'token' => $token
         ];
 
@@ -254,7 +257,9 @@ class AuthController extends Controller
         ]);
 
         $response = [
-            'message' => 'Loja criada com sucesso!'
+            'message' => 'Loja criada com sucesso!',
+            'user' => $user,
+            'lojas' => $user->lojas()->get(),
         ];
 
         return response($response, 201);
@@ -369,6 +374,7 @@ class AuthController extends Controller
         }
         $response = [
             'user' => $user,
+            'lojas' => $user->lojas()->get(),
             'token' => $token
         ];
 
