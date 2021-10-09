@@ -39,6 +39,9 @@ Route::get('/produtos', [ProdutoController::class, 'getAll']);
 Route::get('/produtos/{loja_id}', [ProdutoController::class, 'getLoja']);
 Route::get('/produto/{produto_id}', [ProdutoController::class, 'getProduto']);
 
+/*Loja*/
+Route::get('/lojas', [ProdutoController::class, 'getLojas']);
+
 Route::group(['middleware' => 'auth:sanctum'], function (){
 
     //Auth user

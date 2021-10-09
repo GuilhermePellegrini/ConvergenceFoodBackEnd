@@ -256,6 +256,14 @@ class ProdutoController extends Controller
 
     }
 
+    public function getLojas()
+    {
+        $lojas = Loja::all();
+        return response([
+            'lojas' => $lojas,
+        ], 200);
+    }
+
     public function getProduto($produto_id)
     {
         //buscando produto
