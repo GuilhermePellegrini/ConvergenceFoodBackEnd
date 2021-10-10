@@ -106,9 +106,9 @@ return [
     'required_with_all' => 'The :attribute field is required when :values are present.',
     'required_without' => 'The :attribute field is required when :values is not present.',
     'required_without_all' => 'The :attribute field is required when none of :values are present.',
-    'prohibited' => 'The :attribute field is prohibited.',
-    'prohibited_if' => 'The :attribute field is prohibited when :other is :value.',
-    'prohibited_unless' => 'The :attribute field is prohibited unless :other is in :values.',
+    'prohibited' => 'The :attribute field is proibido.',
+    'prohibited_if' => 'The :attribute field is proibido when :other is :value.',
+    'prohibited_unless' => 'The :attribute field is proibido unless :other is in :values.',
     'same' => 'The :attribute and :other must match.',
     'size' => [
         'numeric' => 'The :attribute must be :size.',
