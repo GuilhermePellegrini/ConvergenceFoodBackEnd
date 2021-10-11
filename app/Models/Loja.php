@@ -21,6 +21,7 @@ class Loja extends Model
         'representante_legal',
         'representante_legal_email',
         'endereco_id',
+        'photo',
     ];
 
     protected $hidden = [

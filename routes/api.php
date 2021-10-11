@@ -28,7 +28,7 @@ Route::group(['prefix' => '/auth'], function(){
 
 //Rota Cep
 Route::group(['prefix' => '/cep'], function(){
-    Route::post('/', [CepController::class, 'cep']);
+    Route::get('/', [CepController::class, 'cep']);
     Route::get('/cidade/{estado_id}', [CepController::class, 'cidade']);
     Route::get('/estados', [CepController::class, 'estados']);
 });
@@ -36,8 +36,8 @@ Route::group(['prefix' => '/cep'], function(){
 //Rotas Gerais
 /*Produtos*/
 Route::get('/produtos', [ProdutoController::class, 'getAll']);
-Route::get('/produtos/{loja_id}', [ProdutoController::class, 'getLoja']);
 Route::get('/produto/{produto_id}', [ProdutoController::class, 'getProduto']);
+Route::get('/produtos/{loja_id}', [ProdutoController::class, 'getLoja']);
 
 /*Loja*/
 Route::get('/lojas', [ProdutoController::class, 'getLojas']);
@@ -48,7 +48,7 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
     Route::get('/user',  [ApiAuthController::class, 'getUser']);
     Route::post('/auth/logout', [ApiAuthController::class, 'logout']);
     Route::post('/auth/changePassword', [ApiAuthController::class, 'changePassword']);
-    Route::post('/auth/updateUser', [ApiAuthController::class, 'updateUser']);
+    Route::put('/auth/updateUser', [ApiAuthController::class, 'updateUser']);
 
     //Carrinho
     Route::post('/carrinho', [CarrinhoController::class, 'createCarrinho']);
@@ -62,9 +62,9 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
     Route::group(['middleware' => 'sanctum.abilities:admin'], function (){
 
         //Auth Loja
-        Route::put('/loja/{loja_id}', [ApiAuthController::class, 'updateLoja']);
         Route::delete('/loja/{loja_id}', [ApiAuthController::class, 'deleteLoja']);
         Route::post('/loja/create', [ApiAuthController::class, 'createLoja']);
+        Route::post('/loja/{loja_id}', [ApiAuthController::class, 'updateLoja']);
 
         //Produto
         Route::post('/produto', [ProdutoController::class, 'create']);

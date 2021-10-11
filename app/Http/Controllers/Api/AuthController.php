@@ -11,6 +11,7 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -40,7 +41,7 @@ class AuthController extends Controller
             'address' => 'required|string|max:255',
             'district' => 'required|string|max:255',
             'number' => 'required|string',
-            'complement' => 'string|max:255',
+            'complement' => 'string|max:255|nullable',
             'cidade_id' => 'required|integer',
             'estado_id' => 'required|integer',
         ]);
@@ -90,18 +91,18 @@ class AuthController extends Controller
             'address' => 'required|string|max:255',
             'district' => 'required|string|max:255',
             'number' => 'required|string',
-            'complement' => 'string|max:255',
+            'complement' => 'string|max:255|nullable',
             'cidade_id' => 'required|integer',
             'estado_id' => 'required|integer',
             'corporate_name' => 'required|string|max:255',
             'trading_name' => 'required|string|max:20',
             'cnpj' => 'required|string|size:14|unique:lojas,cnpj',
-            'web_site' => 'string|max:255',
-            'phone' => 'required|string|max:11',
+            'web_site' => 'string|max:255|nullable',
+            'phone' => 'required|string|max:11|nullable',
             'cel_phone' => 'size:11',
             'email_loja' => 'required|email|max:255',
             'representante_legal' => 'required|string|max:255',
-            'representante_legal_email' => 'required|email|max:255',
+            'representante_legal_email' => 'required|email|max:255|unique:lojas,representante_legal_email',
         ]);
 
         $endereco =  Endereco::create([
@@ -115,6 +116,12 @@ class AuthController extends Controller
             'estado_id' => $request->estado_id,
         ]);
 
+        if($request->hasfile('photo')){
+            $photo = $request->file('photo');
+            $aws = $photo->store('produto', 's3');
+            $path = Storage::url($aws);
+        }
+
         $loja = Loja::create([
             'corporate_name' => $request->corporate_name,
             'trading_name' => $request->trading_name,
@@ -126,6 +133,7 @@ class AuthController extends Controller
             'representante_legal' => $request->representante_legal,
             'representante_legal_email' => $request->representante_legal_email,
             'endereco_id' => $endereco->id,
+            'photo' => $path
         ]);
 
         $user = User::create([
@@ -159,9 +167,6 @@ class AuthController extends Controller
         $user = auth()->user();
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|unique:users,email',
-            'password' => 'required|string|confirmed',
-            'cpf' => 'required|unique:users,cpf',
             'gender' => ['required', Rule::in(['m','f', 'o', 'n'])],
             'admin' => 'boolean|required',
             'address_name' => 'required|string|max:255',
@@ -169,7 +174,7 @@ class AuthController extends Controller
             'address' => 'required|string|max:255',
             'district' => 'required|string|max:255',
             'number' => 'required|string',
-            'complement' => 'string|max:255',
+            'complement' => 'string|max:255|nullable',
             'cidade_id' => 'required|integer',
             'estado_id' => 'required|integer',
         ]);
@@ -185,10 +190,7 @@ class AuthController extends Controller
         $endereco->estado_id = $request->estado_id;
 
         $user->name = $request->name;
-        $user->email = $request->email;
-        $user->cpf = $request->cpf;
         $user->gender = $request->gender;
-        $user->password = $request->password;
         $user->admin = $request->admin;
         $user->endereco_id = $endereco->id;
 
@@ -213,18 +215,19 @@ class AuthController extends Controller
             'address' => 'required|string|max:255',
             'district' => 'required|string|max:255',
             'number' => 'required|string',
-            'complement' => 'string|max:255',
+            'complement' => 'string|max:255|nullable',
             'cidade_id' => 'required|integer',
             'estado_id' => 'required|integer',
             'corporate_name' => 'required|string|max:255',
             'trading_name' => 'required|string|max:20',
             'cnpj' => 'required|string|size:14|unique:lojas,cnpj',
-            'web_site' => 'string|max:255',
-            'phone' => 'required|string|max:11',
+            'web_site' => 'string|max:255|nullable',
+            'phone' => 'required|string|max:11|nullable',
             'cel_phone' => 'size:11',
-            'email_loja' => 'required|email|max:255',
+            'email_loja' => 'required|email|max:255|unique:lojas,email',
             'representante_legal' => 'required|string|max:255',
-            'representante_legal_email' => 'required|email|max:255',
+            'representante_legal_email' => 'required|email|max:255|unique:lojas,representante_legal_email',
+            'photo' => 'required|image'
         ]);
 
         $endereco =  Endereco::create([
@@ -238,6 +241,12 @@ class AuthController extends Controller
             'estado_id' => $request->estado_id,
         ]);
 
+        if($request->hasfile('photo')){
+            $photo = $request->file('photo');
+            $aws = $photo->store('produto', 's3');
+            $path = Storage::url($aws);
+        }
+
         $loja = Loja::create([
             'corporate_name' => $request->corporate_name,
             'trading_name' => $request->trading_name,
@@ -245,10 +254,11 @@ class AuthController extends Controller
             'web_site' => $request->web_site,
             'phone' => $request->phone,
             'cel_phone' => $request->cel_phone,
-            'email' => $request->email,
+            'email' => $request->email_loja,
             'representante_legal' => $request->representante_legal,
             'representante_legal_email' => $request->representante_legal_email,
             'endereco_id' => $endereco->id,
+            'photo' => $path
         ]);
 
         LojaUser::create([
@@ -284,17 +294,17 @@ class AuthController extends Controller
             'address' => 'required|string|max:255',
             'district' => 'required|string|max:255',
             'number' => 'required|string',
-            'complement' => 'string|max:255',
+            'complement' => 'string|max:255|nullable',
             'cidade_id' => 'required|integer',
             'estado_id' => 'required|integer',
             'corporate_name' => 'required|string|max:255',
             'trading_name' => 'required|string|max:20',
-            'web_site' => 'string|max:255',
+            'web_site' => 'string|max:255|nullable',
             'phone' => 'required|string|max:11',
             'cel_phone' => 'size:11',
-            'email_loja' => 'required|email|max:255',
             'representante_legal' => 'required|string|max:255',
-            'representante_legal_email' => 'required|email|max:255',
+            'representante_legal_email' => 'required|email|max:255|unique:lojas,representante_legal_email',
+            'photo' => 'required|image|nullable'
         ]);
 
         $endereco = Endereco::find($loja->endereco_id);
@@ -310,19 +320,27 @@ class AuthController extends Controller
 
         $loja->corporate_name = $request->corporate_name;
         $loja->trading_name = $request->trading_name;
-        $loja->cnpj = $request->cnpj;
         $loja->web_site = $request->web_site;
         $loja->phone = $request->phone;
         $loja->cel_phone = $request->cel_phone;
-        $loja->email = $request->email;
         $loja->representante_legal = $request->representante_legal;
         $loja->representante_legal_email = $request->representante_legal_email;
         $loja->endereco_id = $endereco->id;
+        if($request->hasfile('photo')){
+            $photo = $request->file('photo');
+            $aws = $photo->store('produto', 's3');
+            $path = Storage::url($aws);
+            $loja->photo = $path;
+        }
         $loja->save();
 
         $response = [
-            'message' => 'Loja atualizada com sucesso!'
+            'message' => 'Loja atualizada com sucesso!',
+            'user' => $user,
+            'lojas' => $user->lojas()->get(),
         ];
+
+        return response($response, 201);
 
         return response($response, 201);
     }
@@ -386,7 +404,7 @@ class AuthController extends Controller
         auth()->user()->tokens()->delete();
 
         return response([
-            'message' => 'Logged out'
+            'message' => 'Sessão finalizada'
         ], 200);
     }
 
@@ -402,7 +420,7 @@ class AuthController extends Controller
         //Verificando senha antiga
         if(!$user || !Hash::check($request->old_password, $user->password)){
             return response([
-                'message' => 'old password is incorrect'
+                'message' => 'Senha anterior incorreta'
             ], 401);
         }
 
@@ -411,7 +429,7 @@ class AuthController extends Controller
         $user->save();
         auth()->user()->tokens()->delete();
         return response([
-            'message' => 'password changed successfully'
+            'message' => 'Senha alterada com sucesso'
         ], 200);
     }
 
