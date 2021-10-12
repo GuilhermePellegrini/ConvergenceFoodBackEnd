@@ -34,13 +34,13 @@ Route::group(['prefix' => '/cep'], function(){
 });
 
 //Rotas Gerais
+/*Loja*/
+Route::get('/lojas', [ProdutoController::class, 'getLojas']);
+
 /*Produtos*/
 Route::get('/produtos', [ProdutoController::class, 'getAll']);
 Route::get('/produto/{produto_id}', [ProdutoController::class, 'getProduto']);
-Route::get('/produtos/{loja_id}', [ProdutoController::class, 'getLoja']);
-
-/*Loja*/
-Route::get('/lojas', [ProdutoController::class, 'getLojas']);
+Route::get('/produtos/{loja_id}', [ProdutoController::class, 'getLojaProdutos']);
 
 Route::group(['middleware' => 'auth:sanctum'], function (){
 

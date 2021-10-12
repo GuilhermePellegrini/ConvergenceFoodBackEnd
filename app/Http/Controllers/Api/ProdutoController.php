@@ -65,6 +65,7 @@ class ProdutoController extends Controller
             'estoque_id' => $estoque->id,
             'produto_id' => $produto->id,
             'entrada' => $request->quantidade,
+            'motivo' => 'entrada',
             'saida' => 0
         ]);
         
@@ -72,7 +73,8 @@ class ProdutoController extends Controller
 
         return response([
             'produto' => $produto,
-            'fotos' => $fotos
+            'fotos' => $fotos,
+            'estoque' => $estoque,
         ], 201);
     }
 
@@ -82,7 +84,6 @@ class ProdutoController extends Controller
             'name' => 'required|string|max:60',
             'price' => 'required|numeric|between:0.01,9999999999.99',
             'description' => 'required|string|max:255',
-            'loja_id' => 'required',
             'categoria_id' => 'required',
         ]);
 
@@ -100,7 +101,6 @@ class ProdutoController extends Controller
         $produto->name = $request->name;
         $produto->price = $request->price;
         $produto->description = $request->description;
-        $produto->loja_id = $request->loja_id;
         $produto->save();
 
         $estoque = Estoque::where('produto_id', $produto_id)->first();
@@ -154,7 +154,7 @@ class ProdutoController extends Controller
         $fotos = $produto->fotos()->get();
 
         return response([
-            'message' => 'Produto updated successfully',
+            'message' => 'Produto atualizado com sucesso',
             'produto' => $produto,
             'estoque' => $estoque,
             'fotos' => $fotos
@@ -169,11 +169,15 @@ class ProdutoController extends Controller
             'order' => 'required',
         ]);
 
-        $produtoFoto = ProdutoFoto::where('produto_id', $produto_id)->where('foto_id', $request->foto_id)->get();
-        
-        $foto = Foto::where('foto_id', $produtoFoto->foto_id)->first();
+        $produtoFoto = ProdutoFoto::where('produto_id', $produto_id)->where('foto_id', $request->foto_id)->first();
+
+        $foto = Foto::find($produtoFoto->foto_id);
         $foto->order = $request->order;
         $foto->save();
+
+        return response([
+            'message' => 'Ordem das fotos atualizadas com sucesso'
+        ], 200);
     }
 
     //method Delete
@@ -220,7 +224,7 @@ class ProdutoController extends Controller
         $produto->delete();
         
         return response([
-            'message' => 'Produto deleted successfully'
+            'message' => 'Produto deletado com sucesso'
         ], 200);
     }
 
@@ -254,6 +258,10 @@ class ProdutoController extends Controller
         $foto->delete();
         $produtoFoto->delete();
 
+        return response([
+            'message' => 'Foto do produto deletada com sucesso'
+        ], 200);
+
     }
 
     public function getLojas()
@@ -269,10 +277,11 @@ class ProdutoController extends Controller
         //buscando produto
         $produto = Produto::find($produto_id);
 
+
         //verificando se produto existe
         if(empty($produto)){
             return response([
-                'message' => 'Foto Produto não encontrado'
+                'message' => 'Produto não encontrado'
             ], 404);
         }
 
@@ -289,7 +298,7 @@ class ProdutoController extends Controller
         ], 200);
     }
 
-    public function getLoja($loja_id)
+    public function getLojaProdutos($loja_id)
     {
         //buscando loja dos produtos
         $loja = Loja::find($loja_id);
@@ -326,6 +335,7 @@ class ProdutoController extends Controller
         }
         
         return response([
+            'loja' => $loja,
             'produtos' => $produto_response,
         ], 200);
     }

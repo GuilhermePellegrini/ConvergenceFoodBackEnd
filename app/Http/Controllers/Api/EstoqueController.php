@@ -8,6 +8,7 @@ use App\Models\MovimentoEstoques;
 use App\Models\Produto;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class EstoqueController extends Controller
 {
@@ -32,6 +33,7 @@ class EstoqueController extends Controller
         $request->validate([
             'entrada' => 'required|numeric|between:0,9999999999',
             'saida' => 'required|numeric|between:0,9999999999',
+            'motivo' => ['required', Rule::in(['vencimento','ajuste','entrada'])],
         ]);
         
         $user = User::find(auth()->user()->id);
