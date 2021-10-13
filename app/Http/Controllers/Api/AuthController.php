@@ -204,6 +204,7 @@ class AuthController extends Controller
             'email_loja' => 'required|email|max:255',
             'representante_legal' => 'required|string|max:255',
             'representante_legal_email' => 'required|email|max:255|unique:lojas,representante_legal_email',
+            'photo' => 'required|image'
         ]);
 
         $endereco =  Endereco::create([
@@ -267,6 +268,11 @@ class AuthController extends Controller
 
         return response($response, 201);
     }
+    
+    public function deleteEndereco($endereco_id)
+    {
+        
+    }
 
     public function updateUser(Request $request)
     {
@@ -275,30 +281,11 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'gender' => ['required', Rule::in(['m','f', 'o', 'n'])],
             'admin' => 'boolean|required',
-            'address_name' => 'required|string|max:255',
-            'cep' => 'required|string|size:8',
-            'address' => 'required|string|max:255',
-            'district' => 'required|string|max:255',
-            'number' => 'required|string',
-            'complement' => 'string|max:255|nullable',
-            'cidade_id' => 'required|integer',
-            'estado_id' => 'required|integer',
         ]);
-
-        $endereco = Endereco::find($user->endereco_id);
-        $endereco->name = $request->address_name;
-        $endereco->cep = $request->cep;
-        $endereco->address = $request->address;
-        $endereco->district = $request->district;
-        $endereco->number = $request->number;
-        $endereco->complement = $request->complement;
-        $endereco->cidade_id = $request->cidade_id;
-        $endereco->estado_id = $request->estado_id;
 
         $user->name = $request->name;
         $user->gender = $request->gender;
         $user->admin = $request->admin;
-        $user->endereco_id = $endereco->id;
 
         $token = $user->createToken(env('APP_API'))->plainTextToken;
 
