@@ -15,7 +15,8 @@ class MovimentoEstoques extends Model
         'estoque_id',
         'produto_id',
         'entrada',
-        'saida'
+        'saida',
+        'motivo'
     ];
     
     protected $hidden = [

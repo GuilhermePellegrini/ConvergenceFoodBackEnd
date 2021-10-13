@@ -34,4 +34,10 @@ class Loja extends Model
     {
         return $this->hasMany(Produto::class);
     }
+
+    public function endereco()
+    {
+        return $this->hasOne(Endereco::class, 'id', 'endereco_id');
+    }
+    
 }

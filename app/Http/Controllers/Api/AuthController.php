@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Endereco;
+use App\Models\EnderecoUser;
 use App\Models\Loja;
 use App\Models\LojaUser;
 use App\Models\User;
@@ -21,10 +22,13 @@ class AuthController extends Controller
     public function getUser()
     {
         $user = User::find($user = auth()->user()->id);
-        return [
+        $response = [
             'user' => $user,
-            'lojas' => $user->lojas()->get()
+            'lojas' => $user->lojas()->get(),
+            'enderecos' => $user->enderecos()->get()
         ];
+
+        return response($response, 200);
     }
 
     public function register(Request $request)
@@ -55,6 +59,7 @@ class AuthController extends Controller
             'complement' => $request->complement,
             'cidade_id' => $request->cidade_id,
             'estado_id' => $request->estado_id,
+            'default' => true,
         ]);
 
         $user = User::create([
@@ -63,7 +68,11 @@ class AuthController extends Controller
             'cpf' => $request->cpf,
             'gender' => $request->gender,
             'password' => Hash::make($request->password),
-            'endereco_id' => $endereco->id
+        ]);
+
+        EnderecoUser::create([
+            'endereco_id' => $endereco->id,
+            'user_id' => $user->id,
         ]);
 
         $token = $user->createToken(env('APP_API'))->plainTextToken;
@@ -71,10 +80,102 @@ class AuthController extends Controller
         $response = [
             'user' => $user,
             'lojas' => $user->lojas()->get(),
-            'token' => $token
+            'enderecos' => $user->enderecos()->get(),
+            'token' => $token,
         ];
 
         return response($response, 201);
+    }
+
+    public function insertEndereco(Request $request)
+    {
+        $request->validate([
+            'address_name' => 'required|string|max:255',
+            'cep' => 'required|string|size:8',
+            'address' => 'required|string|max:255',
+            'district' => 'required|string|max:255',
+            'number' => 'required|string',
+            'complement' => 'string|max:255|nullable',
+            'cidade_id' => 'required|integer',
+            'estado_id' => 'required|integer',
+            'default' => 'required|boolean',
+        ]);
+
+        $user = auth()->user();
+        $user = User::find($user->id);
+
+        $endereco =  Endereco::create([
+            'name' => $request->address_name,
+            'cep' => $request->cep,
+            'address' => $request->address,
+            'district' => $request->district,
+            'number' => $request->number,
+            'complement' => $request->complement,
+            'cidade_id' => $request->cidade_id,
+            'estado_id' => $request->estado_id,
+            'default' => $request->default,
+        ]);
+
+        EnderecoUser::create([
+            'endereco_id' => $endereco->id,
+            'user_id' => $user->id,
+        ]);
+
+        $enderecos = $user->enderecos()->get();
+
+        $response = [
+            'message' => 'Endereço cadastrado com sucesso',
+            'user' => $user,
+            'enderecos' => $enderecos
+        ];
+
+        return response($response, 201);
+    }
+
+    public function updateEndereco($endereco_id, Request $request)
+    {
+        $request->validate([
+            'address_name' => 'required|string|max:255',
+            'cep' => 'required|string|size:8',
+            'address' => 'required|string|max:255',
+            'district' => 'required|string|max:255',
+            'number' => 'required|string',
+            'complement' => 'string|max:255|nullable',
+            'cidade_id' => 'required|integer',
+            'estado_id' => 'required|integer',
+            'default' => 'required|boolean',
+        ]);
+
+        $user = auth()->user();
+        $user = User::find($user->id);
+
+        $enderecoUser = EnderecoUser::where('endereco_id', $endereco_id)->where('user_id', $user->id)->first();
+        if(empty($enderecoUser)){
+            return response([
+                'message' => 'Endereço não encontrado'
+            ], 404);
+        }
+
+        $endereco = Endereco::find($enderecoUser->endereco_id);
+        $endereco->name = $request->address_name;
+        $endereco->cep = $request->cep;
+        $endereco->address = $request->address;
+        $endereco->district = $request->district;
+        $endereco->number = $request->number;
+        $endereco->complement = $request->complement;
+        $endereco->cidade_id = $request->cidade_id;
+        $endereco->estado_id = $request->estado_id;
+        $endereco->default = $request->default;
+        $endereco->save();
+        
+        $response = [
+            'message' => 'Endereço atualizado com sucesso',
+            'user' => $user,
+            'lojas' => $user->lojas()->get(),
+            'enderecos' => $user->enderecos()->get()
+        ];
+
+        return response($response, 200);
     }
 
     public function registerAdmin(Request $request)
@@ -142,7 +243,6 @@ class AuthController extends Controller
             'cpf' => $request->cpf,
             'gender' => $request->gender,
             'password' => Hash::make($request->password),
-            'endereco_id' => $endereco->id,
             'admin' => $request->admin,
         ]);
 
@@ -151,12 +251,18 @@ class AuthController extends Controller
             'loja_id' => $loja->id
         ]);
 
+        EnderecoUser::create([
+            'endereco_id' => $endereco->id,
+            'user_id' => $user->id,
+        ]);
+
         $token = $user->createToken(env('APP_API'), ['admin'])->plainTextToken;
 
         $response = [
             'user' => $user,
             'lojas' => $user->lojas()->get(),
-            'token' => $token
+            'enderecos' => $user->enderecos()->get(),
+            'token' => $token,
         ];
 
         return response($response, 201);
@@ -199,6 +305,7 @@ class AuthController extends Controller
         $response = [
             'user' => $user,
             'lojas' => $user->lojas()->get(),
+            'enderecos' => $user->enderecos()->get(),
             'token' => $token
         ];
 

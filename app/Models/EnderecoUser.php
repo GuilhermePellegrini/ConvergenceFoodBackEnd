@@ -6,15 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class CarrinhoProduto extends Model
+class EnderecoUser extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'carrinho_id',
-        'produto_id',
-        'amount',
-        'note',
+        'user_id',
+        'endereco_id'
     ];
 
     protected $hidden = [
@@ -22,10 +20,4 @@ class CarrinhoProduto extends Model
         'updated_at',
         'deleted_at',
     ];
-
-    public function produto()
-    {
-        return $this->hasOne(Produto::class, 'id', 'produto_id');
-    }
-
 }

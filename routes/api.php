@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController as ApiAuthController;
+use App\Http\Controllers\Api\CarrinhoController;
 use App\Http\Controllers\Api\CepController;
 use App\Http\Controllers\Api\EstoqueController;
 use App\Http\Controllers\Api\ProdutoController;
@@ -46,17 +47,20 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
 
     //Auth user
     Route::get('/user',  [ApiAuthController::class, 'getUser']);
+    Route::post('/user/endereco', [ApiAuthController::class, 'insertEndereco']);
+    Route::put('/user/endereco/{endereco_id}', [ApiAuthController::class, 'updateEndereco']);
     Route::post('/auth/logout', [ApiAuthController::class, 'logout']);
     Route::post('/auth/changePassword', [ApiAuthController::class, 'changePassword']);
     Route::put('/auth/updateUser', [ApiAuthController::class, 'updateUser']);
 
     //Carrinho
+    Route::get('/carrinho/{carrinho_id}', [CarrinhoController::class, 'getCarrinho']);
     Route::post('/carrinho', [CarrinhoController::class, 'createCarrinho']);
-    Route::get('/carrinho', [CarrinhoController::class, 'getCarrinho']);
     Route::post('/carrinho/{carrinho_id}', [CarrinhoController::class, 'insertProduto']);
-    Route::delete('/carrinho/{carrinho_id}/{produto_id}', [CarrinhoController::class, 'removeProduto']);
-    Route::put('/carrinho/{carrinho_id}/{produto_id}', [CarrinhoController::class, 'updateProduto']);
+    Route::put('/carrinho/{carrinho_id}', [CarrinhoController::class, 'updateCarrinho']);
+    Route::put('/carrinho/produto/{carrinho_id}/{produto_id}', [CarrinhoController::class, 'updateProduto']);
     Route::delete('/carrinho/{carrinho_id}', [CarrinhoController::class, 'cleanCarrinho']);
+    Route::delete('/carrinho/produto/{carrinho_id}/{produto_id}', [CarrinhoController::class, 'removeProduto']);
     
     //Administrador Lojas
     Route::group(['middleware' => 'sanctum.abilities:admin'], function (){

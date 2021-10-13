@@ -56,4 +56,10 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Loja::class, 'loja_users', 'user_id');
     }
+
+    public function enderecos()
+    {
+        return $this->belongsToMany(Endereco::class, 'endereco_users', 'user_id');
+    }
+
 }

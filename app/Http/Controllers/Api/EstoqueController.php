@@ -68,7 +68,8 @@ class EstoqueController extends Controller
             'estoque_id' => $estoque->id,
             'produto_id' => $produto->id,
             'entrada' => $request->entrada,
-            'saida' => $request->saida
+            'saida' => $request->saida,
+            'motivo' => $request->motivo,
         ]);
 
         $movimento = $estoque->movimento()->get();

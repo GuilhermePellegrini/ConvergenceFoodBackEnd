@@ -17,7 +17,8 @@ class Carrinho extends Model
         'cupom_id',
         'price',
         'discount',
-        'note'
+        'note',
+        'closed'
     ];
 
     protected $hidden = [
@@ -28,11 +29,21 @@ class Carrinho extends Model
 
     public function produtos()
     {
-        return $this->belongsToMany(Produto::class, 'carrinho_produtos', 'produto_id');
+        return $this->hasMany(CarrinhoProduto::class, 'carrinho_id');
     }
 
     public function cupom()
     {
         return $this->hasOne(Cupom::class, null, 'cupom_id');
+    }
+
+    public function endereco()
+    {
+        return $this->hasOne(Endereco::class, 'id', 'endereco_id');
+    }
+
+    public function loja()
+    {
+        return $this->hasOne(Loja::class, 'id', 'loja_id');
     }
 }

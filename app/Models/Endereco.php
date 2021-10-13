@@ -19,6 +19,7 @@ class Endereco extends Model
         'complement',
         'cidade_id',
         'estado_id',
+        'default',
     ];
 
     protected $hidden = [
