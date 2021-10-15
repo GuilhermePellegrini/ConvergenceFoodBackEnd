@@ -16,8 +16,8 @@ class UpdateUsersTable3 extends Migration
     {
         Schema::table('users', function(Blueprint $table)
         {
-            $table->dropForeign('users_loja_id_foreign');
-            $table->dropColumn('loja_id');
+            $table->dropForeign(['loja_id']);
+            $table->dropColumn(['loja_id']);
         });
     }
 

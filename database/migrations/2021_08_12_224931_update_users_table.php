@@ -34,6 +34,7 @@ class UpdateUsersTable extends Migration
     {
         Schema::table('users', function($table)
         {
+            $table->dropForeign(['endereco_id']);
             $table->dropColumn('endereco_id');
             $table->dropColumn('loja_id');
             $table->dropColumn('deleted_at');

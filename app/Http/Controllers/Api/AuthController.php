@@ -271,7 +271,21 @@ class AuthController extends Controller
     
     public function deleteEndereco($endereco_id)
     {
-        
+        $user = auth()->user();
+        $enderecoUser = EnderecoUser::where('endereco_id', $endereco_id)->where('user_id', $user->id)->first();
+        if(empty($enderecoUser)){
+            return response([
+                'message' => 'Endereço não encontrado'
+            ], 404);
+        }
+
+        $endereco = Endereco::find($enderecoUser->endereco_id);
+        $endereco->delete();
+        $response = [
+            'message' => 'Endereço deletado com sucesso',
+        ];
+
+        return response($response, 200);
     }
 
     public function updateUser(Request $request)
@@ -487,6 +501,7 @@ class AuthController extends Controller
         $response = [
             'user' => $user,
             'lojas' => $user->lojas()->get(),
+            'enderecos' => $user->enderecos()->get(),
             'token' => $token
         ];
 

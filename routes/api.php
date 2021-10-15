@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController as ApiAuthController;
 use App\Http\Controllers\Api\CarrinhoController;
 use App\Http\Controllers\Api\CepController;
 use App\Http\Controllers\Api\EstoqueController;
+use App\Http\Controllers\Api\PagamentoController;
 use App\Http\Controllers\Api\ProdutoController;
 use Illuminate\Support\Facades\Route;
 
@@ -49,6 +50,7 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
     Route::get('/user',  [ApiAuthController::class, 'getUser']);
     Route::post('/user/endereco', [ApiAuthController::class, 'insertEndereco']);
     Route::put('/user/endereco/{endereco_id}', [ApiAuthController::class, 'updateEndereco']);
+    Route::delete('/user/endereco/{endereco_id}', [ApiAuthController::class, 'deleteEndereco']);
     Route::post('/auth/logout', [ApiAuthController::class, 'logout']);
     Route::post('/auth/changePassword', [ApiAuthController::class, 'changePassword']);
     Route::put('/auth/updateUser', [ApiAuthController::class, 'updateUser']);
@@ -61,7 +63,14 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
     Route::put('/carrinho/produto/{carrinho_id}/{produto_id}', [CarrinhoController::class, 'updateProduto']);
     Route::delete('/carrinho/{carrinho_id}', [CarrinhoController::class, 'cleanCarrinho']);
     Route::delete('/carrinho/produto/{carrinho_id}/{produto_id}', [CarrinhoController::class, 'removeProduto']);
-    
+
+    //Pagamento
+    Route::get('/pagamento/metodos', [PagamentoController::class, 'methodPagamentos']);
+    Route::get('/pagamento/{pedido_id}', [PagamentoController::class, 'updatePagamento']);
+    Route::post('/pagamento/{pedido_id}', [PagamentoController::class, 'realizarPagamento']);
+    Route::delete('/pagamento/{pedido_id}/{pagamento_id}', [PagamentoController::class, 'deletePagamento']);
+
+
     //Administrador Lojas
     Route::group(['middleware' => 'sanctum.abilities:admin'], function (){
 
@@ -77,7 +86,7 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
         Route::post('/produto/foto/{produto_id}', [ProdutoController::class, 'addFoto']);
         Route::put('/produto/foto/{produto_id}', [ProdutoController::class, 'updateOrderFoto']);
         Route::delete('/produto/foto/{produto_id}/{foto_id}', [ProdutoController::class, 'deleteFoto']);
-        
+
         //Estoque
         Route::get('/estoque/{produto_id}', [EstoqueController::class, 'getEstoque']);
         Route::put('/estoque/{produto_id}', [EstoqueController::class, 'changeEstoque']);
