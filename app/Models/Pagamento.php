@@ -14,6 +14,7 @@ class Pagamento extends Model
         'mercado_pago_id',
         'pedido_id',
         'user_id',
+        'assinatura_id',
         'status',
         'status_detail',
         'date_created',

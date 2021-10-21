@@ -72,7 +72,7 @@ class PagamentoController extends Controller
         $payment->description = "Pedido de produtos alimenticios na loja ".$loja->corporate_name;
         $payment->installments = (int)1;
         $payment->payment_method_id = $request->metodo_pagamento;
-
+        $payment->binary_mode = true;
         $payer = new MercadoPago\Payer();
         $payer->email = $user->email;
         $payer->identification = array(
@@ -196,20 +196,5 @@ class PagamentoController extends Controller
         }
 
     }
-
-    public function deletePagamento($pedido_id, $pagamento_id)
-    {
-        $pagamento = Pagamento::where('id', $pagamento_id)->where('pedido_id', $pedido_id)->first();
-        if(empty($pagamento)){
-            return response([
-                'message' => 'Pagamento não encontrado'
-            ], 404);
-        }
-
-        $pagamento->delete();
-        return response([
-            'message' => 'Pagamento deletado com sucesso',
-        ], 200);
-
-    }
+    
 }

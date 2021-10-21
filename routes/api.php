@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CarrinhoController;
 use App\Http\Controllers\Api\CepController;
 use App\Http\Controllers\Api\EstoqueController;
 use App\Http\Controllers\Api\PagamentoController;
+use App\Http\Controllers\Api\PedidoController;
 use App\Http\Controllers\Api\ProdutoController;
 use Illuminate\Support\Facades\Route;
 
@@ -70,6 +71,11 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
     Route::post('/pagamento/{pedido_id}', [PagamentoController::class, 'realizarPagamento']);
     Route::delete('/pagamento/{pedido_id}/{pagamento_id}', [PagamentoController::class, 'deletePagamento']);
 
+    //Pedido
+    Route::post('/pedido/carrinho/{carrinho_id}', [PedidoController::class, 'createPedido']);
+    Route::get('/pedido/{pedido_id}', [PedidoController::class, 'getPedido']);
+    Route::get('/pedidos', [PedidoController::class, 'getAll']);
+    Route::put('/pedido/{pedido_id}', [PedidoController::class, 'updatePedido']);
 
     //Administrador Lojas
     Route::group(['middleware' => 'sanctum.abilities:admin'], function (){

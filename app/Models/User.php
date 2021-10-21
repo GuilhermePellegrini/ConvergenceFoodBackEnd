@@ -62,4 +62,9 @@ class User extends Authenticatable
         return $this->belongsToMany(Endereco::class, 'endereco_users', 'user_id');
     }
 
+    public function pedidos()
+    {
+        return $this->hasMany(Pedido::class, 'user_id', 'id');
+    }
+
 }

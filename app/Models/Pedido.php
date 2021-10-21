@@ -13,11 +13,13 @@ class Pedido extends Model
     protected $fillable = [
         'loja_id',
         'user_id',
+        'carrinho_id',
         'endereco_id',
         'cupom_id',
         'price',
         'discount',
         'note',
+        'status',
         'closed'
     ];
 
