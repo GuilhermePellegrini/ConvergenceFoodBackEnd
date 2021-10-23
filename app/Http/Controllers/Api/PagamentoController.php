@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Assinatura;
+use App\Models\AssinaturaUser;
 use App\Models\Loja;
 use App\Models\Pagamento;
 use App\Models\Pedido;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use MercadoPago;
@@ -85,7 +88,6 @@ class PagamentoController extends Controller
         
         if(!$payment->error){
 
-      
             $date_created = new Carbon($payment->date_created);
             $date_created = $date_created->toDateTimeString();
 
@@ -125,6 +127,10 @@ class PagamentoController extends Controller
                 'error' => $payment->error
             ], $payment->error->status);
         }else{
+
+            $pedido->status = 'Pendente';
+            $pedido->save();
+
             return response([
                 'message' => 'Pagamento',
                 'pagamento' => $pagamento
@@ -182,6 +188,100 @@ class PagamentoController extends Controller
         $pagamento->payment_method_id = $payment->payment_method_id;
         $pagamento->payment_type_id = $payment->payment_type_id;
         $pagamento->save();
+
+        if($payment->error){
+            return response([
+                'message' => 'Erro ao realizar pagamento',
+                'error' => $payment->error
+            ], $payment->error->status);
+        }else{
+            return response([
+                'message' => 'Pagamento',
+                'pagamento' => $pagamento
+            ], 200);
+        }
+
+    }
+
+    public function realizarAssinatura($assinatura_id, Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'metodo_pagamento' => 'required',
+            'tipo_documento' => 'required',
+            'numero_documento' => 'required',
+        ]);
+
+        $user = User::find(auth()->user()->id);
+        $assinatura = Assinatura::find($assinatura_id)->first();
+
+        if(empty($assinatura)){
+            return response([
+                'message' => 'Assinatura não encontrado'
+            ], 404);
+        }
+
+        MercadoPago\SDK::setAccessToken(ENV('MERCADO_PAGO_ACESS_TOKEN'));
+
+        $payment = new MercadoPago\Payment();
+        $payment->transaction_amount = (float)$assinatura->price;
+        $payment->token = $request->token;
+        $payment->statement_descriptor = "Convergence Dev";
+        $payment->description = "Assinatura loja online Convergence Dev";
+        $payment->installments = (int)$assinatura->month_duration;
+        $payment->payment_method_id = $request->metodo_pagamento;
+        $payment->binary_mode = true;
+        $payer = new MercadoPago\Payer();
+        $payer->email = $user->email;
+        $payer->identification = array(
+            "type" => $request->tipo_documento,
+            "number" => $request->numero_documento,
+        );
+        $payment->payer = $payer;
+
+        $payment->save();
+        
+        if(!$payment->error){
+
+            $date_created = new Carbon($payment->date_created);
+            $date_created = $date_created->toDateTimeString();
+
+            if($payment->date_approved == null){
+                $date_approved = null;
+            }else{
+                $date_approved = new Carbon($payment->date_approved);
+                $date_approved = $date_approved->toDateTimeString();
+            }
+
+            if($payment->money_release_date == null){
+                $money_release_date = null;
+            }else{
+                $money_release_date = new Carbon($payment->money_release_date);
+                $money_release_date = $money_release_date->toDateTimeString();
+            }
+
+            $pagamento = Pagamento::create([
+                'mercado_pago_id' => $payment->id,
+                'pedido_id' => null,
+                'assinatura_id' => $assinatura->id,
+                'user_id' => $user->id,
+                'status' => $payment->status,
+                'status_detail' => $payment->status_detail,
+                'date_created' => $date_created,
+                'date_approved' => $date_approved,
+                'money_release_date' => $money_release_date,
+                'transaction_amount' => $payment->transaction_amount,
+                'transaction_amount_refunded' => $payment->transaction_amount_refunded,
+                'payment_method_id' => $payment->payment_method_id,
+                'payment_type_id' => $payment->payment_type_id,
+            ]);
+
+            AssinaturaUser::create([
+                'user_id' => $user->id,
+                'assinatura_id' => $assinatura->id,
+                'active' => true
+            ]);
+        }
 
         if($payment->error){
             return response([

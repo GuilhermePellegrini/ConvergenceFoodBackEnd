@@ -33,6 +33,6 @@ class CreateUserAssinaturasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_assinaturas');
+        Schema::dropIfExists('assinatura_users');
     }
 }

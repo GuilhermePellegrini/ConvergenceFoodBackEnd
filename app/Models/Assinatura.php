@@ -13,9 +13,15 @@ class Assinatura extends Model
     protected $fillable = [
         'installments',
         'name',
-        'amount',
+        'price',
         'month_duration',
         'numbers_lojas',
+    ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
     ];
 
 }

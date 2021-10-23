@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AssinaturaController;
 use App\Http\Controllers\Api\AuthController as ApiAuthController;
 use App\Http\Controllers\Api\CarrinhoController;
 use App\Http\Controllers\Api\CepController;
@@ -37,6 +38,7 @@ Route::group(['prefix' => '/cep'], function(){
 });
 
 //Rotas Gerais
+
 /*Loja*/
 Route::get('/lojas', [ProdutoController::class, 'getLojas']);
 
@@ -44,6 +46,9 @@ Route::get('/lojas', [ProdutoController::class, 'getLojas']);
 Route::get('/produtos', [ProdutoController::class, 'getAll']);
 Route::get('/produto/{produto_id}', [ProdutoController::class, 'getProduto']);
 Route::get('/produtos/{loja_id}', [ProdutoController::class, 'getLojaProdutos']);
+
+/*Assinatura*/
+Route::get('/assinaturas', [AssinaturaController::class, 'getAll']);
 
 Route::group(['middleware' => 'auth:sanctum'], function (){
 
@@ -96,6 +101,9 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
         //Estoque
         Route::get('/estoque/{produto_id}', [EstoqueController::class, 'getEstoque']);
         Route::put('/estoque/{produto_id}', [EstoqueController::class, 'changeEstoque']);
+
+        //Assinatura
+        Route::post('/assinatura/pagamento/{assinatura_id}', [PagamentoController::class, 'realizarAssinatura']);
 
     });
 

@@ -67,4 +67,9 @@ class User extends Authenticatable
         return $this->hasMany(Pedido::class, 'user_id', 'id');
     }
 
+    public function assinaturas()
+    {
+        return $this->belongsToMany(Assinatura::class, 'assinatura_users', 'user_id');
+    }
+
 }

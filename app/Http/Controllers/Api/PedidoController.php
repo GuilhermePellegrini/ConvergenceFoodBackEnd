@@ -50,7 +50,7 @@ class PedidoController extends Controller
             'price' => $carrinho->price,
             'discount' => $carrinho->discount,
             'note' => $carrinho->note,
-            'status' => 'Pendente'
+            'status' => 'Pagamento_Pendente'
         ]);
 
         $carrinhoProdutos = $carrinho->produtos()->get();

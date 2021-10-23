@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\AssinaturaUser;
 use App\Models\Endereco;
 use App\Models\EnderecoUser;
 use App\Models\Loja;
@@ -22,10 +23,14 @@ class AuthController extends Controller
     public function getUser()
     {
         $user = User::find($user = auth()->user()->id);
+        $assinatura = $user->assinaturas()->first();
+        $userAssinatura = AssinaturaUser::where('user_id', $user->id)->where('assinatura_id', $assinatura->id)->first();
+        $assinatura['active'] = $userAssinatura->active;
         $response = [
             'user' => $user,
             'lojas' => $user->lojas()->get(),
-            'enderecos' => $user->enderecos()->get()
+            'enderecos' => $user->enderecos()->get(),
+            'assinatura' => $assinatura,
         ];
 
         return response($response, 200);
@@ -263,6 +268,7 @@ class AuthController extends Controller
             'user' => $user,
             'lojas' => $user->lojas()->get(),
             'enderecos' => $user->enderecos()->get(),
+            'assinatura' => $user->assinaturas()->get(),
             'token' => $token,
         ];
 
@@ -502,7 +508,8 @@ class AuthController extends Controller
             'user' => $user,
             'lojas' => $user->lojas()->get(),
             'enderecos' => $user->enderecos()->get(),
-            'token' => $token
+            'assinatura' => $user->assinaturas()->get(),
+            'token' => $token,
         ];
 
         return response($response, 200);

@@ -17,7 +17,7 @@ class CreateAssinaturaTable extends Migration
             $table->id();
             $table->integer('installments');
             $table->string('name');
-            $table->float('amount', 10, 2);
+            $table->float('price', 10, 2);
             $table->integer('month_duration');
             $table->integer('numbers_lojas');
             $table->timestamps();

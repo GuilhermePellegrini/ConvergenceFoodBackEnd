@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class UpdatePedidoTable2 extends Migration
+class UpdatePagamentosTable2 extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class UpdatePedidoTable2 extends Migration
      */
     public function up()
     {
-        Schema::table('pedidos', function(Blueprint $table)
+        Schema::table('pagamentos', function(Blueprint $table)
         {
-            $table->enum('status', ['Pagamento_Pendente', 'Pendente', 'Aceito', 'Cancelado', 'Entrega', 'Finalizado'])->after('note');
+            $table->foreignId('pedido_id')->nullable()->default(null)->change();
         });
     }
 
@@ -26,9 +26,9 @@ class UpdatePedidoTable2 extends Migration
      */
     public function down()
     {
-        Schema::table('pedidos', function(Blueprint $table)
+        Schema::table('pagamentos', function(Blueprint $table)
         {
-            $table->dropColumn('status');
+            $table->foreignId('pedido_id')->nullable(false)->change();
         });
     }
 }
