@@ -24,8 +24,10 @@ class AuthController extends Controller
     {
         $user = User::find($user = auth()->user()->id);
         $assinatura = $user->assinaturas()->first();
-        $userAssinatura = AssinaturaUser::where('user_id', $user->id)->where('assinatura_id', $assinatura->id)->first();
-        $assinatura['active'] = $userAssinatura->active;
+        if(!empty($assinatura)){
+            $userAssinatura = AssinaturaUser::where('user_id', $user->id)->where('assinatura_id', $assinatura->id)->first();
+            $assinatura['active'] = $userAssinatura->active;
+        }
         $response = [
             'user' => $user,
             'lojas' => $user->lojas()->get(),
@@ -504,11 +506,18 @@ class AuthController extends Controller
         }else{
             $token = $user->createToken(env('APP_API'), [''])->plainTextToken;
         }
+
+        $assinatura = $user->assinaturas()->first();
+        if(!empty($assinatura)){
+            $userAssinatura = AssinaturaUser::where('user_id', $user->id)->where('assinatura_id', $assinatura->id)->first();
+            $assinatura['active'] = $userAssinatura->active;
+        }
+
         $response = [
             'user' => $user,
             'lojas' => $user->lojas()->get(),
             'enderecos' => $user->enderecos()->get(),
-            'assinatura' => $user->assinaturas()->get(),
+            'assinatura' => $assinatura,
             'token' => $token,
         ];
 
