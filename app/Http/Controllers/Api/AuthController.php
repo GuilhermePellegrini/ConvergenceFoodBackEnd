@@ -359,7 +359,7 @@ class AuthController extends Controller
 
         if($request->hasfile('photo')){
             $photo = $request->file('photo');
-            $aws = $photo->store('produto', 's3');
+            $aws = $photo->store('lojas', 's3');
             $path = Storage::url($aws);
         }
 
