@@ -250,7 +250,7 @@ class ProdutoController extends Controller
             $i++;
         }
         //verificando se loja do usuario é a mesma do produto
-        $produto = Produto::where('id', $produto_id)->whereIn('loja_id', $lojas)->first();
+        $produto = Produto::where('id', $produto_id)->whereIn('loja_id', $lojasId)->first();
         if(empty($produto)){
             return response([
                 'message' => 'Foto Produto não encontrado'
