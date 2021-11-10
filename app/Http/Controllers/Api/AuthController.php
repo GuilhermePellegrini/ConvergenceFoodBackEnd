@@ -359,8 +359,8 @@ class AuthController extends Controller
 
         if($request->hasfile('photo')){
             $photo = $request->file('photo');
-            $aws = $photo->store('lojas', 's3');
-            $path = Storage::url($aws);
+            $path = $photo->store('lojas', 's3');
+            $aws = Storage::url($path);
         }
 
         $loja = Loja::create([
@@ -374,7 +374,7 @@ class AuthController extends Controller
             'representante_legal' => $request->representante_legal,
             'representante_legal_email' => $request->representante_legal_email,
             'endereco_id' => $endereco->id,
-            'photo' => $path
+            'photo' => $aws
         ]);
 
         LojaUser::create([

@@ -38,8 +38,8 @@ class ProdutoController extends Controller
         if($request->hasfile('images')){
             $i = 1;
             foreach($request->images as $image){
-                $aws = $image->store('produto', 's3');
-                $path = Storage::url($aws);
+                $path = $image->store('produto', 's3');
+                $aws = Storage::url($path);
                 $foto = Foto::create([
                     'path' => $path,
                     'order' => $i,
@@ -132,8 +132,8 @@ class ProdutoController extends Controller
         $lastFoto = $produto->fotos()->orderBy('order', 'desc')->first();
         $i = $lastFoto->order + 1;
         if($request->hasfile('image')){
-            $aws = $image->store('produto', 's3');
-            $path = Storage::url($aws);
+            $path = $image->store('produto', 's3');
+            $aws = Storage::url($path);
 
             $foto = Foto::create([
                 'path' => $path,
