@@ -47,6 +47,9 @@ Route::get('/produtos', [ProdutoController::class, 'getAll']);
 Route::get('/produto/{produto_id}', [ProdutoController::class, 'getProduto']);
 Route::get('/produtos/{loja_id}', [ProdutoController::class, 'getLojaProdutos']);
 
+/*Categorias*/
+Route::get('/categorias', [ProdutoController::class, 'getCategorias']);
+
 /*Assinatura*/
 Route::get('/assinaturas', [AssinaturaController::class, 'getAll']);
 

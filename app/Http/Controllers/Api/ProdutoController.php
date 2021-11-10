@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Categoria;
 use App\Models\Estoque;
 use App\Models\Foto;
 use App\Models\Loja;
@@ -390,6 +391,15 @@ class ProdutoController extends Controller
         
         return response([
             'produtos' => $produto_response,
+        ], 200);
+    }
+
+    public function getCategorias()
+    {
+        $categorias = Categoria::all();
+
+        return response([
+            'categorias' => $categorias,
         ], 200);
     }
 
