@@ -14,6 +14,7 @@ class Produto extends Model
         'name',
         'price',
         'description',
+        'categoria_id',
         'loja_id'
     ];
 

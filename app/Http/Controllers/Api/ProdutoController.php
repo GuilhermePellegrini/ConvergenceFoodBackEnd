@@ -243,6 +243,12 @@ class ProdutoController extends Controller
         }
 
         $lojas = $user->lojas()->get();
+        $lojasId = [];
+        $i = 0;
+        foreach($lojas as $lojas){
+            $lojasId[$i] = $lojas->id;
+            $i++;
+        }
         //verificando se loja do usuario é a mesma do produto
         $produto = Produto::where('id', $produto_id)->whereIn('loja_id', $lojas)->first();
         if(empty($produto)){
