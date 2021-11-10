@@ -187,8 +187,14 @@ class ProdutoController extends Controller
         $user = User::find(auth()->user()->id);
         
         $lojas = $user->lojas()->get();
-        //buscando produto
-        $produto = Produto::where('id', $produto_id)->whereIn('loja_id', $lojas)->first();
+        $lojasId = [];
+        $i = 0;
+        foreach($lojas as $lojas){
+            $lojasId[$i] = $lojas->id;
+            $i++;
+        }
+        //verificando se loja do usuario é a mesma do produto
+        $produto = Produto::where('id', $produto_id)->whereIn('loja_id', $lojasId)->first();
 
         //verificando se fotos do produto existem
         if(empty($produto)){
