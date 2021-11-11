@@ -110,6 +110,7 @@ class ProdutoController extends Controller
         $produto->name = $request->name;
         $produto->price = $request->price;
         $produto->description = $request->description;
+        $produto->categoria_id = $request->categoria_id;
         $produto->save();
 
         $estoque = Estoque::where('produto_id', $produto_id)->first();
