@@ -34,6 +34,7 @@ class ProdutoController extends Controller
             'price' => $request->price,
             'description' => $request->description,
             'loja_id' => $request->loja_id,
+            'categoria_id' => $request->categoria_id,
         ]);
         
         if($request->hasfile('images')){
