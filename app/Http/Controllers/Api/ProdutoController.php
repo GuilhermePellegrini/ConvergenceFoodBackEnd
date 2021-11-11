@@ -350,9 +350,15 @@ class ProdutoController extends Controller
                 //somando contador f
                 $f++;
             }
+
+            //buscando estoque do produto
+            $estoque = $produto->estoque()->get();
+            $produto_response[$i]['estoque'] = $estoque;
+            
             //somando contador i
             $i++;
         }
+        
         
         return response([
             'loja' => $loja,
