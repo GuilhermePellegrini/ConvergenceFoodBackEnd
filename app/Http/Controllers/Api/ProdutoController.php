@@ -79,7 +79,7 @@ class ProdutoController extends Controller
         ], 201);
     }
 
-    public function updateProduto(Request $request, $produto_id)
+    public function updateProduto($produto_id, Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:60',
