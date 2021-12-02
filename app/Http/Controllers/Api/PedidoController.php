@@ -173,13 +173,71 @@ class PedidoController extends Controller
         ], 200);
     }
 
+    public function getPedidosLoja($loja_id) {
+
+        $user = User::find(auth()->user()->id)->first();
+        $user->lojas()->get();
+
+        $lojas = $user->lojas()->get();
+        $loja = false;
+        foreach($lojas as $loja){
+            if($loja_id === $loja->id){
+                $loja = true;
+                break;
+            }
+        }
+
+        if($loja === false){
+            return response([
+                'message' => 'Loja não encontrada'
+            ], 404);
+        }
+        
+        $pedidos = Pedido::where('loja_id', $loja_id)->get();
+
+        $pedidosLoja = [];
+        $i = 0;
+        foreach($pedidos as $pedido){
+
+            $pedidoProdutos = $pedido->produtos()->get();
+            $produtos = [];
+            $c = 0;
+            foreach($pedidoProdutos as $produto){
+                $produtos[$c] = [
+                    'detalhe' => $produto,
+                    'produto' => $produto->produto()->get()
+                ];
+                $c++;
+            }
+            $lojaPedido = $pedido->loja()->get();
+            $endereco = $pedido->endereco()->get();
+            $pagamento = $pedido->pagamento()->get();
+
+            $pedidosLoja[$i] = [
+                "pedido" => $pedido,
+                "produtos" => $produtos,
+                "loja" => $lojaPedido,
+                "endereco" => $endereco,
+                "pagamento" => $pagamento
+            ];
+
+            $i++;
+
+        }
+
+        return response([
+            "pedidos" => $pedidosLoja
+        ], 200);
+
+    }
+
     public function updatePedido($pedido_id, Request $request)
     {
         $request->validate([
             'status' => ['required', Rule::in(['Pendente', 'Aceito', 'Cancelado', 'Entrega', 'Finalizado'])]
         ]);
 
-        $pedido = Pedido::find($pedido_id)->first();
+        $pedido = Pedido::find($pedido_id);
         
         if((empty($pedido) || !$pedido)){
             return response([
@@ -192,17 +250,19 @@ class PedidoController extends Controller
 
         $pagamento = $pedido->pagamento()->first();
 
-        if($request->status == 'Cancelado' && $pagamento->status == "approved"){
+        if($request->status == 'Cancelado'){
             if(!empty($pagamento)){
-                MercadoPago\SDK::setAccessToken(ENV('MERCADO_PAGO_ACESS_TOKEN'));
-                $payment = new MercadoPago\Payment();
-                $payment = $payment->get($pagamento->mercado_pago_id);
-                $payment->refund();
-    
-                $pagamento->status = $payment->status;
-                $pagamento->status_detail = $payment->status_detail;
-                $pagamento->transaction_amount_refunded = $payment->transaction_amount_refunded;
-                $pagamento->save();
+                if($pagamento->status == "approved"){
+                    MercadoPago\SDK::setAccessToken(ENV('MERCADO_PAGO_ACESS_TOKEN'));
+                    $payment = new MercadoPago\Payment();
+                    $payment = $payment->get($pagamento->mercado_pago_id);
+                    $payment->refund();
+        
+                    $pagamento->status = $payment->status;
+                    $pagamento->status_detail = $payment->status_detail;
+                    $pagamento->transaction_amount_refunded = $payment->transaction_amount_refunded;
+                    $pagamento->save();
+                }
             }
         }
 
