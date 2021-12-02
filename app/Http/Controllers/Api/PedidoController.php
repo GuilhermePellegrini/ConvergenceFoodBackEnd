@@ -173,7 +173,65 @@ class PedidoController extends Controller
         ], 200);
     }
 
-    public function getPedidosLoja($loja_id) {
+    public function verificarPedidos($loja_id)
+    {
+        $user = User::find(auth()->user()->id)->first();
+        $user->lojas()->get();
+
+        $lojas = $user->lojas()->get();
+        $loja = false;
+        foreach($lojas as $loja){
+            if($loja_id === $loja->id){
+                $loja = true;
+                break;
+            }
+        }
+
+        if($loja === false){
+            return response([
+                'message' => 'Loja não encontrada'
+            ], 404);
+        }
+
+        $pedidos = Pedido::where('loja_id', $loja_id)->where('status', 'Pendente')->get();
+        $pedidosLoja = [];
+        $i = 0;
+        foreach($pedidos as $pedido){
+
+            $pedidoProdutos = $pedido->produtos()->get();
+            $produtos = [];
+            $c = 0;
+            foreach($pedidoProdutos as $produto){
+                $produtos[$c] = [
+                    'detalhe' => $produto,
+                    'produto' => $produto->produto()->get()
+                ];
+                $c++;
+            }
+            $lojaPedido = $pedido->loja()->get();
+            $endereco = $pedido->endereco()->get();
+            $pagamento = $pedido->pagamento()->get();
+
+            $pedidosLoja[$i] = [
+                "pedido" => $pedido,
+                "produtos" => $produtos,
+                "loja" => $lojaPedido,
+                "endereco" => $endereco,
+                "pagamento" => $pagamento
+            ];
+
+            $i++;
+
+        }
+
+        return response([
+            "pedidos" => $pedidosLoja
+        ], 200);
+
+    }
+
+    public function getPedidosLoja($loja_id)
+    {
 
         $user = User::find(auth()->user()->id)->first();
         $user->lojas()->get();

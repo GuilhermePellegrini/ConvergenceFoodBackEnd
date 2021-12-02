@@ -109,7 +109,8 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
         Route::post('/assinatura/pagamento/{assinatura_id}', [PagamentoController::class, 'realizarAssinatura']);
 
         //Pedidos
-        Route::get('/pedidos/loja/{loja_id}', [PedidoController::class, 'getPedidosLoja']);        
+        Route::get('/verificar/pedidos/loja/{loja_id}', [PedidoController::class, 'verificarPedidos']); 
+        Route::get('/pedidos/loja/{loja_id}', [PedidoController::class, 'getPedidosLoja']);
 
     });
 
